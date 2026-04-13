@@ -17,6 +17,18 @@ async function accountFromPassphrase(phrase: string, index = 0) {
   return KeetaNetLib.Account.fromSeed(seed, index);
 }
 
+let _cachedAccount: any = null;
+let _cachedClient: any = null;
+let _cachedSeed = "";
+
+async function getOracleClient(seed: string): Promise<{ account: any; client: any }> {
+  if (_cachedClient && _cachedSeed === seed) return { account: _cachedAccount, client: _cachedClient };
+  _cachedAccount = await accountFromPassphrase(seed);
+  _cachedClient  = (UserClient as any).fromNetwork("main", _cachedAccount);
+  _cachedSeed    = seed;
+  return { account: _cachedAccount, client: _cachedClient };
+}
+
 const KTA_BASE_ADDRESS = "0xc0634090F2Fe6c6d75e61Be2b949464aBB498973";
 
 type GeckoPool = {
@@ -207,10 +219,8 @@ export async function verifyPayment(
   if (!env.KEETA_SEED) return { verified: false, amount: 0, error: "KEETA_SEED not configured" };
 
   try {
-    const signer        = await accountFromPassphrase(env.KEETA_SEED);
-    const client        = (UserClient as any).fromNetwork("main", signer);
-    const oracleAccount = await accountFromPassphrase(env.KEETA_SEED);
-    const history       = await client.history(oracleAccount);
+    const { account: oracleAccount, client } = await getOracleClient(env.KEETA_SEED);
+    const history = await client.history(oracleAccount);
 
     let total = 0;
     for (const staple of (history as unknown[])) {
@@ -246,9 +256,7 @@ export async function detectRecentWhales(
   if (!env.KEETA_SEED) return null;
 
   try {
-    const signer  = await accountFromPassphrase(env.KEETA_SEED);
-    const client  = (UserClient as any).fromNetwork("main", signer);
-    const account = await accountFromPassphrase(env.KEETA_SEED);
+    const { account, client } = await getOracleClient(env.KEETA_SEED);
     const history = await client.history(account);
 
     for (const staple of (history as unknown[])) {

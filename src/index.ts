@@ -401,7 +401,10 @@ async function runCron(env: Env, ctx: ExecutionContext): Promise<void> {
   const rolling = computeRollingChanges(minuteRing, hourlyRing, price, now);
   const c1h  = rolling.c1h  ?? dexC1h;
   const c24h = rolling.c24h ?? dexC24h;
-  const c7d  = rolling.c7d  ?? dexC7d;
+  const p7dFallback = (history.p7d && history.p7d > 0)
+    ? ((price - history.p7d) / history.p7d) * 100
+    : null;
+  const c7d  = rolling.c7d  ?? dexC7d ?? p7dFallback;
 
   await Promise.all([
     writePriceHistory(env, price, now, history, { c1h, c24h, c7d }),
