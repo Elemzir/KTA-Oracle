@@ -418,7 +418,7 @@ async function runCron(env: Env, ctx: ExecutionContext): Promise<void> {
 
   await emitToSocial(env, {
     type: "price_update",
-    price, priceChange, change24h: c24h ?? 0, change7d: c7d,
+    price, priceChange, change1h: c1h ?? null, change24h: c24h ?? 0, change7d: c7d,
     volume24h, liquidityUsd,
     alertTriggered, changeLevel, whale: null, ts: now,
   } as unknown as Record<string, unknown>);

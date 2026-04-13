@@ -52,26 +52,26 @@ export async function fetchMarketData(): Promise<{
       if (pool) {
         const liquidityUsd = parseFloat(pool.attributes.reserve_in_usd ?? "0") || null;
         const volume24h    = parseFloat(pool.attributes.volume_usd?.h24 ?? "0") || null;
-        const poolAddress  = pool.id.replace(/^[^_]+_/, "");
-        const or = await fetch(
-          `https://api.geckoterminal.com/api/v2/networks/base/pools/${poolAddress}/ohlcv/day?limit=8&currency=usd`,
-          { signal: AbortSignal.timeout(8000), headers: { "Accept": "application/json" } },
-        );
-        if (or.ok) {
-          const od = await or.json() as { data?: { attributes?: { ohlcv_list?: number[][] } } };
-          const list = od.data?.attributes?.ohlcv_list ?? [];
-          const latest = [...list].reverse().find(c => c[4] > 0);
-          const oldest = list.find(c => c[4] > 0);
-          const price = latest?.[4];
-          if (price && isFinite(price) && price > 0) {
-            const c7d = (oldest && oldest !== latest && oldest[4] > 0)
-              ? ((price - oldest[4]) / oldest[4]) * 100
-              : null;
-            const volFromOhlcv = latest?.[5] ? latest[5] * price : null;
-            return { price, c1h: null, c24h: null, c7d, volume24h: volume24h ?? volFromOhlcv, liquidityUsd };
-          }
+        const price        = parseFloat(pool.attributes.base_token_price_usd ?? "0") || null;
+        const c1h          = pool.attributes.price_change_percentage?.h1 ?? null;
+        const c24h         = pool.attributes.price_change_percentage?.h24 ?? null;
+        if (price && isFinite(price) && price > 0) {
+          let c7d: number | null = null;
+          try {
+            const poolAddress = pool.id.replace(/^[^_]+_/, "");
+            const or = await fetch(
+              `https://api.geckoterminal.com/api/v2/networks/base/pools/${poolAddress}/ohlcv/day?limit=8&currency=usd`,
+              { signal: AbortSignal.timeout(6000), headers: { "Accept": "application/json" } },
+            );
+            if (or.ok) {
+              const od = await or.json() as { data?: { attributes?: { ohlcv_list?: number[][] } } };
+              const list = od.data?.attributes?.ohlcv_list ?? [];
+              const oldest = list.find(c => c[4] > 0);
+              if (oldest && oldest[4] > 0) c7d = ((price - oldest[4]) / oldest[4]) * 100;
+            }
+          } catch {}
+          return { price, c1h, c24h, c7d, volume24h, liquidityUsd };
         }
-        if (liquidityUsd) return { price: null, c1h: null, c24h: null, c7d: null, volume24h, liquidityUsd };
       }
     }
   } catch {}
