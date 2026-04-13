@@ -410,8 +410,11 @@ async function runCron(env: Env, ctx: ExecutionContext): Promise<void> {
   const c24h = rolling.c24h ?? dexC24h;
   const c7d  = rolling.c7d  ?? dexC7d;
 
+  const needsBoundaryUpdate = !history.ts1h  || now - history.ts1h  >= 3_600_000
+                           || !history.ts24h || now - history.ts24h >= 24 * 3_600_000
+                           || !history.ts7d  || now - history.ts7d  >= 7 * 24 * 3_600_000;
   await Promise.all([
-    writePriceHistory(env, price, now, history),
+    (marketFresh || needsBoundaryUpdate) ? writePriceHistory(env, price, now, history) : Promise.resolve(),
     appendPricePoint(env, minuteRing, price, now),
     appendHourlyPoint(env, hourlyRing, price, now),
   ]);
