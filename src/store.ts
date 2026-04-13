@@ -10,24 +10,30 @@ export async function readPriceHistory(env: Env): Promise<{
   ts24h: number | null;
   p7d:   number | null;
   ts7d:  number | null;
+  c1h:   number | null;
+  c24h:  number | null;
+  c7d:   number | null;
 }> {
   const s = await env.KV.get<{
     price: number; ts: number;
     p1h: number | null; ts1h: number | null;
     p24h: number | null; ts24h: number | null;
     p7d: number | null; ts7d: number | null;
+    c1h: number | null; c24h: number | null; c7d: number | null;
   }>("kta:price_state", "json");
   return {
     last: s?.price ?? null, last_ts: s?.ts ?? null,
     p1h: s?.p1h ?? null, ts1h: s?.ts1h ?? null,
     p24h: s?.p24h ?? null, ts24h: s?.ts24h ?? null,
     p7d: s?.p7d ?? null, ts7d: s?.ts7d ?? null,
+    c1h: s?.c1h ?? null, c24h: s?.c24h ?? null, c7d: s?.c7d ?? null,
   };
 }
 
 export async function writePriceHistory(
   env: Env, price: number, now: number,
   prev: { p1h: number | null; ts1h: number | null; p24h: number | null; ts24h: number | null; p7d: number | null; ts7d: number | null },
+  rolling: { c1h: number | null; c24h: number | null; c7d: number | null },
 ): Promise<void> {
   const upd1h  = !prev.ts1h  || now - prev.ts1h  >= 3_600_000;
   const upd24h = !prev.ts24h || now - prev.ts24h >= 24 * 3_600_000;
@@ -37,6 +43,7 @@ export async function writePriceHistory(
     p1h:  upd1h  ? price : prev.p1h,  ts1h:  upd1h  ? now : prev.ts1h,
     p24h: upd24h ? price : prev.p24h, ts24h: upd24h ? now : prev.ts24h,
     p7d:  upd7d  ? price : prev.p7d,  ts7d:  upd7d  ? now : prev.ts7d,
+    c1h: rolling.c1h, c24h: rolling.c24h, c7d: rolling.c7d,
   }));
 }
 

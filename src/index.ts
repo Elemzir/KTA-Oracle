@@ -108,12 +108,9 @@ export default {
 
     if (method === "GET" && pathname === "/price") {
       const now = Date.now();
-      const [history, mkt] = await Promise.all([
-        readPriceHistory(env),
-        env.KV.get<{ c1h: number | null; c24h: number | null; c7d: number | null; ts: number }>("market:cache", "json"),
-      ]);
+      const history = await readPriceHistory(env);
       if (!history.last) return Response.json({ error: "Price unavailable" }, { status: 503 });
-      return Response.json({ price: history.last, change_pct: mkt?.c1h ?? null, change_24h: mkt?.c24h ?? null, change_7d: mkt?.c7d ?? null, ts: now }, { headers: { "Cache-Control": CC_PRICE } });
+      return Response.json({ price: history.last, change_pct: history.c1h ?? null, change_24h: history.c24h ?? null, change_7d: history.c7d ?? null, ts: now }, { headers: { "Cache-Control": CC_PRICE } });
     }
 
     if (method === "GET" && pathname === "/rate") {
@@ -127,13 +124,9 @@ export default {
 
     if (method === "GET" && pathname === "/price/live") {
       const now = Date.now();
-      const [history, mkt] = await Promise.all([
-        readPriceHistory(env),
-        env.KV.get<{ c1h: number | null; c24h: number | null; c7d: number | null; ts: number }>("market:cache", "json"),
-      ]);
-      const price = history.last;
-      if (!price) return Response.json({ error: "unavailable" }, { status: 503 });
-      return Response.json({ price, change_pct: mkt?.c1h ?? null, change_24h: mkt?.c24h ?? null, change_7d: mkt?.c7d ?? null, ts: now }, { headers: { "Cache-Control": CC_PRICE } });
+      const history = await readPriceHistory(env);
+      if (!history.last) return Response.json({ error: "unavailable" }, { status: 503 });
+      return Response.json({ price: history.last, change_pct: history.c1h ?? null, change_24h: history.c24h ?? null, change_7d: history.c7d ?? null, ts: now }, { headers: { "Cache-Control": CC_PRICE } });
     }
 
     if (method === "GET" && pathname === "/price/history") {
@@ -410,11 +403,8 @@ async function runCron(env: Env, ctx: ExecutionContext): Promise<void> {
   const c24h = rolling.c24h ?? dexC24h;
   const c7d  = rolling.c7d  ?? dexC7d;
 
-  const needsBoundaryUpdate = !history.ts1h  || now - history.ts1h  >= 3_600_000
-                           || !history.ts24h || now - history.ts24h >= 24 * 3_600_000
-                           || !history.ts7d  || now - history.ts7d  >= 7 * 24 * 3_600_000;
   await Promise.all([
-    (marketFresh || needsBoundaryUpdate) ? writePriceHistory(env, price, now, history) : Promise.resolve(),
+    writePriceHistory(env, price, now, history, { c1h, c24h, c7d }),
     appendPricePoint(env, minuteRing, price, now),
     appendHourlyPoint(env, hourlyRing, price, now),
   ]);
