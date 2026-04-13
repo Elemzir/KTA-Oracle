@@ -25,10 +25,10 @@ import {
 
 async function getCachedMarketData(env: Env): Promise<{ price: number | null; c1h: number | null; c24h: number | null; c7d: number | null; volume24h: number | null; liquidityUsd: number | null; fresh: boolean }> {
   const cached = await env.KV.get<{ price: number; c1h: number | null; c24h: number | null; c7d: number | null; volume24h: number | null; liquidityUsd: number | null; ts: number }>("market:cache", "json");
-  if (cached && Date.now() - cached.ts < 600_000) return { ...cached, fresh: false };
+  if (cached && Date.now() - cached.ts < 900_000) return { ...cached, fresh: false };
   const fetched = await fetchMarketData();
   if (fetched.price) {
-    await env.KV.put("market:cache", JSON.stringify({ ...fetched, ts: Date.now() }));
+    await env.KV.put("market:cache", JSON.stringify({ ...fetched, ts: Date.now() }), { expirationTtl: 1800 });
     return { ...fetched, fresh: true };
   }
   if (cached) return { ...cached, fresh: false };
@@ -83,6 +83,7 @@ const BLOCKED_METHODS = new Set(["PUT","PATCH","DELETE","TRACE","CONNECT","PURGE
 
 export default {
   async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
+    try {
     const { pathname, searchParams } = new URL(request.url);
     const method = request.method;
 
@@ -155,19 +156,14 @@ export default {
 
       const result = await activateWallet(env, wallet);
 
-      if (result.success && env.KTA_SOCIAL_URL) {
-        ctx.waitUntil(
-          fetch(`${env.KTA_SOCIAL_URL}/oracle-activate`, {
-            method:  "POST",
-            headers: { "X-Internal-Secret": env.INTERNAL_SECRET, "Content-Type": "application/json" },
-            body:    JSON.stringify({
-              wallet,
-              socialLifetime: result.socialLifetime,
-              tier:           result.tier,
-              expiresAt:      result.expiresAt ? new Date(result.expiresAt).getTime() : undefined,
-            }),
-          }).catch(() => {}),
-        );
+      if (result.success) {
+        const nb = JSON.stringify({ wallet, socialLifetime: result.socialLifetime, tier: result.tier, expiresAt: result.expiresAt ? new Date(result.expiresAt).getTime() : undefined });
+        const nh = { "X-Internal-Secret": env.INTERNAL_SECRET, "Content-Type": "application/json" };
+        if (env.SOCIAL_SERVICE) {
+          ctx.waitUntil(env.SOCIAL_SERVICE.fetch(new Request("https://kta-social/oracle-activate", { method: "POST", headers: nh, body: nb })).catch(() => {}));
+        } else if (env.KTA_SOCIAL_URL) {
+          ctx.waitUntil(fetch(`${env.KTA_SOCIAL_URL}/oracle-activate`, { method: "POST", headers: nh, body: nb, signal: AbortSignal.timeout(20000) }).catch(() => {}));
+        }
       }
 
       return Response.json(result, { status: result.success ? 200 : 402 });
@@ -287,7 +283,7 @@ export default {
         const cached = await env.KV.get<Record<string, unknown>>("kta:cache:network_health", "json");
         if (cached) return Response.json(cached);
         const result = await getNetworkHealth(env);
-        await env.KV.put("kta:cache:network_health", JSON.stringify(result), { expirationTtl: 30 });
+        await env.KV.put("kta:cache:network_health", JSON.stringify(result), { expirationTtl: 60 });
         return Response.json(result);
       } catch (e) { return Response.json({ error: String(e) }, { status: 500 }); }
     }
@@ -380,6 +376,9 @@ export default {
     }
 
     return Response.json({ service: "kta-oracle" }, { status: 404 });
+    } catch (e) {
+      return Response.json({ error: e instanceof Error ? e.message : "Internal error" }, { status: 500 });
+    }
   },
 
   async scheduled(_controller: ScheduledController, env: Env, ctx: ExecutionContext): Promise<void> {
