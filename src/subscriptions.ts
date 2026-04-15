@@ -76,13 +76,18 @@ export async function activateWallet(env: Env, wallet: string): Promise<Activate
     };
   }
 
-  const tier           = resolveFullTier(total);
-  const socialLifetime = total >= TIER_SOCIAL;
+  const TIER_RANK: Record<SubTier, number> = {
+    unregistered: 0, free: 1, starter: 2, social: 3, pro: 4, business: 5,
+  };
+  const chainTier      = resolveFullTier(total);
+  const existing       = await loadSubscription(env, wallet).catch(() => null);
+  const tier: SubTier  = (existing && TIER_RANK[existing.tier] > TIER_RANK[chainTier]) ? existing.tier : chainTier;
+  const socialLifetime = tier === "social" || tier === "pro" || tier === "business" || (existing?.socialLifetime ?? false);
 
   let validityMs: number;
-  if (tier === "free")    validityMs = TIER_FREE_VALIDITY_MS;
+  if (tier === "free")         validityMs = TIER_FREE_VALIDITY_MS;
   else if (tier === "starter") validityMs = TIER_STARTER_VALIDITY_MS;
-  else                    validityMs = TIER_VALIDITY_MS;
+  else                         validityMs = TIER_VALIDITY_MS;
 
   const expiresAt = Date.now() + validityMs;
   const record: SubRecord = { tier, amount: total, activatedAt: Date.now(), expiresAt, socialLifetime };
