@@ -1,4 +1,4 @@
-import { UserClient, lib as KeetaNetLib } from "@keetanetwork/keetanet-client";
+import { verifyPayment } from "./keeta.js";
 import type { Env } from "./types.js";
 
 export const TIER_REGISTRATION    = 0.1;
@@ -14,7 +14,6 @@ export const STARTER_CALLS_TOTAL  = 60;
 export const PAID_CALLS_PER_MONTH = 150;
 export const PRO_CALLS_PER_MONTH  = 300;
 
-const KTA_NATIVE_DECIMALS = 1e18;
 
 export type SubTier = "unregistered" | "free" | "starter" | "social" | "pro" | "business";
 
@@ -35,30 +34,6 @@ export interface ActivateResult {
   message:        string;
 }
 
-async function accountFromPhrase(phrase: string, index = 0) {
-  const seed = await (KeetaNetLib.Account as any).seedFromPassphrase(phrase.trim());
-  return KeetaNetLib.Account.fromSeed(seed, index);
-}
-
-async function scanChainTotal(env: Env, subscriberWallet: string): Promise<number> {
-  const signer  = await accountFromPhrase(env.KEETA_SEED);
-  const client  = (UserClient as any).fromNetwork("main", signer);
-  const oracle  = await accountFromPhrase(env.KEETA_SEED);
-  const history = await client.history(oracle);
-
-  let total = 0;
-  for (const staple of (history as unknown[])) {
-    try {
-      const ops = await client.filterStapleOperations(staple, oracle);
-      for (const op of (Array.isArray(ops) ? ops : Object.values(ops as object).flat())) {
-        const o = op as Record<string, unknown>;
-        if (String(o?.from ?? "") === subscriberWallet)
-          total += Number(o?.amount ?? 0) / KTA_NATIVE_DECIMALS;
-      }
-    } catch {}
-  }
-  return total;
-}
 
 function resolveFullTier(amount: number): SubTier {
   if (amount >= TIER_BUSINESS)     return "business";
@@ -85,12 +60,10 @@ export async function activateWallet(env: Env, wallet: string): Promise<Activate
     return { success: false, tier: "unregistered", amount: 0, socialLifetime: false, expiresAt: null, message: "Invalid wallet address." };
   }
 
-  let total: number;
-  try {
-    total = await scanChainTotal(env, wallet);
-  } catch (e) {
-    return { success: false, tier: "unregistered", amount: 0, socialLifetime: false, expiresAt: null, message: `Chain scan failed: ${e instanceof Error ? e.message : String(e)}` };
-  }
+  const scan = await verifyPayment(env, wallet, 0);
+  if (scan.error)
+    return { success: false, tier: "unregistered", amount: 0, socialLifetime: false, expiresAt: null, message: `Chain scan failed: ${scan.error}` };
+  const total = scan.amount;
 
   if (total < TIER_REGISTRATION) {
     return {

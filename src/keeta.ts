@@ -21,7 +21,7 @@ let _cachedAccount: any = null;
 let _cachedClient: any = null;
 let _cachedSeed = "";
 
-async function getOracleClient(seed: string): Promise<{ account: any; client: any }> {
+export async function getOracleClient(seed: string): Promise<{ account: any; client: any }> {
   if (_cachedClient && _cachedSeed === seed) return { account: _cachedAccount, client: _cachedClient };
   _cachedAccount = await accountFromPassphrase(seed);
   _cachedClient  = (UserClient as any).fromNetwork("main", _cachedAccount);
@@ -220,16 +220,31 @@ export async function verifyPayment(
 
   try {
     const { account: oracleAccount, client } = await getOracleClient(env.KEETA_SEED);
-    const history = await client.history(oracleAccount);
+    const oracleAddr: string = (oracleAccount as any).publicKeyString?.get?.() ?? "";
+
+    const subAccount = KeetaNetLib.Account.fromPublicKeyString(subscriberWallet);
+    const subHistory = await client.history(subAccount);
+    const subStaples = Array.isArray(subHistory) ? subHistory : [];
 
     let total = 0;
-    for (const staple of (history as unknown[])) {
+    for (const staple of subStaples) {
       try {
-        const ops = await client.filterStapleOperations(staple, oracleAccount);
-        for (const op of (Array.isArray(ops) ? ops : Object.values(ops as object).flat())) {
-          const o = op as Record<string, unknown>;
-          if (String(o?.from ?? "") === subscriberWallet)
-            total += Number(o?.amount ?? 0) / KTA_NATIVE_DECIMALS;
+        const accounts = (staple as any)?.effects?.accounts as Record<string, unknown> | undefined;
+        if (!accounts) continue;
+        const oracleEntry = accounts[oracleAddr] as Record<string, unknown> | undefined;
+        if (!oracleEntry) continue;
+        const balance = (oracleEntry.fields as any)?.balance as Record<string, unknown> | undefined;
+        if (!balance) continue;
+        const ktaEntries = balance[KTA_NATIVE_TOKEN];
+        if (!Array.isArray(ktaEntries)) continue;
+        for (const entry of ktaEntries as Array<Record<string, unknown>>) {
+          const otherAddr = (entry.otherAccount as any)?.publicKeyString?.get?.() ?? String(entry.otherAccount ?? "");
+          if (otherAddr !== subscriberWallet) continue;
+          const raw = entry.value;
+          if (raw == null) continue;
+          const amt = typeof raw === "bigint" ? Number(raw) : Number(String(raw).replace("n", ""));
+          if (!isFinite(amt) || amt <= 0) continue;
+          total += amt / KTA_NATIVE_DECIMALS;
         }
       } catch {}
     }
@@ -251,32 +266,54 @@ export function classifyWhale(amountKta: number): WhaleAlert["classification"] {
 export async function detectRecentWhales(
   env: Env,
   currentPrice: number,
-  lastCheckTs: number,
+  _lastCheckTs: number,
 ): Promise<WhaleAlert | null> {
   if (!env.KEETA_SEED) return null;
 
   try {
-    const { account, client } = await getOracleClient(env.KEETA_SEED);
-    const history = await client.history(account);
+    const { account: oracleAccount, client } = await getOracleClient(env.KEETA_SEED);
+    const oracleAddr: string = (oracleAccount as any).publicKeyString?.get?.() ?? "";
+    const history = await client.history(oracleAccount);
+    const staples = Array.isArray(history) ? history : [];
 
-    for (const staple of (history as unknown[])) {
+    const lastBlockRaw = await env.KV.get("kta:last_whale_block");
+    const lastBlock = lastBlockRaw ? BigInt(lastBlockRaw) : 0n;
+    let maxBlock = lastBlock;
+
+    for (const staple of staples) {
       try {
-        const ops = await client.filterStapleOperations(staple, account);
-        for (const op of (Array.isArray(ops) ? ops : Object.values(ops as object).flat())) {
-          const o         = op as Record<string, unknown>;
-          const ts        = Number(o?.ts ?? o?.timestamp ?? 0);
-          if (ts <= lastCheckTs) continue;
-          const amountKta = Number(o?.amount ?? 0) / KTA_NATIVE_DECIMALS;
+        const accounts = (staple as any)?.effects?.accounts as Record<string, unknown> | undefined;
+        const oracleEntry = accounts?.[oracleAddr] as Record<string, unknown> | undefined;
+        if (!oracleEntry) continue;
+        const rawBlock = (staple as any)?.effects?.metadata?.blockCount;
+        const blockCount = rawBlock != null
+          ? (typeof rawBlock === "bigint" ? rawBlock : BigInt(String(rawBlock).replace("n", "")))
+          : 0n;
+        if (blockCount > 0n && blockCount <= lastBlock) continue;
+        if (blockCount > maxBlock) maxBlock = blockCount;
+        const balance = (oracleEntry.fields as any)?.balance as Record<string, unknown> | undefined;
+        if (!balance) continue;
+        const ktaEntries = balance[KTA_NATIVE_TOKEN];
+        if (!Array.isArray(ktaEntries)) continue;
+        for (const entry of ktaEntries as Array<Record<string, unknown>>) {
+          const raw = entry.value;
+          if (raw == null) continue;
+          const amt = typeof raw === "bigint" ? Number(raw) : Number(String(raw).replace("n", ""));
+          const amountKta = amt / KTA_NATIVE_DECIMALS;
           if (amountKta < WHALE_THRESHOLD_KTA) continue;
+          if (maxBlock > lastBlock)
+            await env.KV.put("kta:last_whale_block", maxBlock.toString());
           return {
             amountKta,
             valueUsd:       amountKta * currentPrice,
             classification: classifyWhale(amountKta),
-            ts:             ts || Date.now(),
+            ts:             Date.now(),
           };
         }
       } catch {}
     }
+    if (maxBlock > lastBlock)
+      await env.KV.put("kta:last_whale_block", maxBlock.toString());
   } catch {}
   return null;
 }
@@ -294,21 +331,30 @@ export async function getWalletHistory(
   env: Env,
   wallet: string,
 ): Promise<{ txs: Array<Record<string, unknown>>; count: number; ts: number }> {
-  const signer  = await accountFromPassphrase(env.KEETA_SEED);
-  const client  = (UserClient as any).fromNetwork("main", signer);
+  const { client } = await getOracleClient(env.KEETA_SEED);
   const target  = KeetaNetLib.Account.fromPublicKeyString(wallet);
   const history = await client.history(target);
   const txs: Array<Record<string, unknown>> = [];
   for (const staple of (Array.isArray(history) ? history.slice(0, 100) : [])) {
     try {
-      const ops = await client.filterStapleOperations(staple, target);
-      for (const op of (Array.isArray(ops) ? ops : Object.values(ops as object).flat())) {
-        const o = op as Record<string, unknown>;
+      const accounts = (staple as any)?.effects?.accounts as Record<string, unknown> | undefined;
+      const walletEntry = accounts?.[wallet] as Record<string, unknown> | undefined;
+      if (!walletEntry) continue;
+      const balance = (walletEntry.fields as any)?.balance as Record<string, unknown> | undefined;
+      if (!balance) continue;
+      const ktaEntries = balance[KTA_NATIVE_TOKEN];
+      if (!Array.isArray(ktaEntries)) continue;
+      for (const entry of ktaEntries as Array<Record<string, unknown>>) {
+        const otherAddr = (entry.otherAccount as any)?.publicKeyString?.get?.() ?? String(entry.otherAccount ?? "");
+        const raw = entry.value;
+        if (raw == null) continue;
+        const amt = typeof raw === "bigint" ? Number(raw) : Number(String(raw).replace("n", ""));
         txs.push({
-          from:   String(o.from   ?? ""),
-          amount: (Number(o.amount ?? 0) / KTA_NATIVE_DECIMALS).toFixed(6),
-          token:  String(o.token  ?? KTA_NATIVE_TOKEN),
-          ts:     Number(o.ts ?? o.timestamp ?? 0),
+          from:   entry.isReceive ? otherAddr : wallet,
+          to:     entry.isReceive ? wallet    : otherAddr,
+          amount: (amt / KTA_NATIVE_DECIMALS).toFixed(6),
+          token:  KTA_NATIVE_TOKEN,
+          ts:     0,
         });
       }
     } catch {}
