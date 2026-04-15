@@ -1,14 +1,30 @@
-# KTA Oracle
+# KTA Oracle — The Most Capable Keeta Network Oracle
 
-**Open Source · Decentralized Oracle · 100% native Keeta Network SDK.** Real-time KTA price intelligence engine built on Cloudflare.
+> **19 tools · 5 tiers · 0.4s finality · 100% on-chain · No API key**
 
-Every operation that touches on-chain data uses `@keetanetwork/keetanet-client` and `@keetanetwork/anchor` directly — no third-party price feeds, no external indexers, no bridging. Whale detection reads Keeta chain history natively. Tier activation scans on-chain payment history natively. FX quotes come from Keeta's own Anchor FX engine.
+Real-time KTA price intelligence, on-chain analytics, whale detection, compliance screening, wallet scoring, identity resolution, and the full Keeta Network SDK surface — served as a tiered REST API from Cloudflare's global edge. The only oracle that combines live price data, AI-powered market insights, and production Keeta SDK tooling in a single deployment.
 
-Runs a cron every 5 minutes — fetches live KTA/USD price, detects whale movements, and broadcasts events to KTA Social. Exposes REST endpoints for price data, FX rates, whale alerts, on-chain subscription verification, and internal payment operations.
+**No API key. No email. No KYC. Your Keeta wallet address is the only identity.**
 
-The oracle worker has no public `workers.dev` URL. All public access is via the KTA Social proxy at `https://kta-oracle.top`. Direct integration with KTA Social is done through a Cloudflare service binding.
+Payments are fully on-chain. Tier activation scans on-chain history in under 2 seconds. Every KTA sent from the same wallet accumulates — you're already on the ladder at 0.1 KTA.
 
-Source: [github.com/Elemzir/KTA-Oracle](https://github.com/Elemzir/KTA-Oracle) · Companion: [github.com/Elemzir/KTA-Social](https://github.com/Elemzir/KTA-Social)
+→ **[kta-oracle.top](https://kta-oracle.top)** · [Tools catalog](https://kta-oracle.top/tools) · [Machine-readable spec](https://kta.netrate.workers.dev/llms.txt) · [Companion: KTA-Social](https://github.com/Elemzir/KTA-Social)
+
+---
+
+## At a glance
+
+| | |
+|---|---|
+| Tools | **19** — free through business tier |
+| Tiers | 5 — Free, Starter, Social, Pro, Business |
+| Settlement | **0.4 seconds** — Keeta Network native finality |
+| Edge latency | **<5ms** — served from Cloudflare KV globally |
+| Price freshness | **5 minutes** — cron-driven, never stale |
+| Platforms | Discord · Telegram · Slack · X/Twitter |
+| Auth | Keeta wallet address — no API key, no KYC |
+| AI insights | On every price alert — payment-network focused |
+| Source | 100% open source — MIT licensed |
 
 ---
 
@@ -22,7 +38,7 @@ Source: [github.com/Elemzir/KTA-Oracle](https://github.com/Elemzir/KTA-Oracle) �
 | `GET` | `/health` | Service health check |
 | `GET` | `/price` | Live KTA/USD price with 1h / 24h / 7d change |
 | `GET` | `/rate?currency=` | KTA rate in any of 160+ fiat currencies with real-time FX conversion |
-| `GET` | `/whale/alerts` | Recent large on-chain KTA movements |
+| `GET` | `/whale/alerts?wallet=` | Recent large on-chain KTA movements (Starter+ tier required) |
 | `POST` | `/activate` | Scan on-chain history, assign tier, store in KV |
 | `GET` | `/subscription?wallet=` | Tier, expiry, social lifetime status |
 
@@ -40,13 +56,13 @@ Source: [github.com/Elemzir/KTA-Oracle](https://github.com/Elemzir/KTA-Oracle) �
 
 Payments accumulate on-chain — multiple sends from the same wallet stack toward the highest tier.
 
-| KTA sent | Tier | Oracle calls | Social alerts | Whale alerts | Duration |
-|----------|------|--------------|---------------|--------------|----------|
-| 0.1 | Free | 20 / day | 100 trial | 1 ever | 5 days |
-| 10 | Starter | 60 total | Trial only | 3 / month | 30 days |
-| 50 | Social | 150 / month | **Lifetime** | Unlimited | 30 days |
-| 300 | Pro | 300 / month | **Lifetime** | Unlimited | 30 days |
-| 600 | Business | Unlimited | **Lifetime** | Unlimited | 30 days |
+| KTA sent | Tier | Tools | Oracle calls | Social alerts | Whale alerts | Duration |
+|----------|------|-------|--------------|---------------|--------------|----------|
+| 0.1 | Free | 5 | 20 / day | 100 trial | 1 ever | 5 days |
+| 10 | Starter | 8 | 60 total | Trial only | 3 / month | 30 days |
+| 50 | Social | 8 | 150 / month | **Lifetime** | Unlimited | 30 days |
+| 300 | Pro | 13 | 300 / month | **Lifetime** | Unlimited | 30 days |
+| 600 | Business | 19 | Unlimited | **Lifetime** | Unlimited | 30 days |
 
 Send KTA to the oracle wallet address (set in `wrangler.toml` as `ORACLE_WALLET` in KTA Social). Then call `POST /activate` with the sender wallet address. The oracle reads full on-chain history and assigns the correct tier immediately.
 
@@ -113,7 +129,7 @@ All on-chain operations are performed natively through the Keeta Network SDK —
 
 | Operation | Native method |
 |-----------|---------------|
-| Whale detection | `client.history()` + `client.filterStapleOperations()` — reads chain directly |
+| Whale detection | `client.history()` + `effects.accounts` — reads chain directly |
 | Tier activation | `scanChainTotal()` — sums KTA sent from subscriber wallet on-chain |
 | FX quotes | `FX.Client.getEstimates()` — Keeta Anchor FX engine |
 | Payment send | `UserClient` native transfer — 0.4s Keeta finality |
@@ -158,6 +174,26 @@ The cron fetches live KTA price with a time-boxed 8s timeout and falls back to t
 ## AI Integration
 
 KTA Oracle exposes 19 SDK tools accessible through KTA Social at `/tools`. AI agents can connect via the REST endpoints or the SSE stream at `/stream?wallet=`. See the full integration guide at `/guide` on the KTA Social deployment.
+
+### Agent quick-start
+
+```
+GET  https://kta.netrate.workers.dev/llms.txt        # full machine-readable spec
+GET  https://kta.netrate.workers.dev/status?wallet=  # current tier + tools._unlock hint
+GET  https://kta.netrate.workers.dev/stream?wallet=  # SSE live price feed
+```
+
+Every `/status` response includes a `tools._unlock` object showing: how many tools are available now, how many are locked, and exactly how much KTA is needed to unlock the next tier's tools. Agents can use this to autonomously discover upgrade paths.
+
+### Tool tiers
+
+| Tier | Tools | Adds |
+|------|-------|------|
+| Free (0.1 KTA) | 5 | `/price`, `/rate`, `/register`, `/status`, `/stream` |
+| Starter (10 KTA) | 8 | `/whale/alerts`, AI insights, portfolio calc |
+| Social (50 KTA) | 8 | Same endpoints + **lifetime** social alerts |
+| Pro (300 KTA) | 13 | `/wallet/history`, `/wallet/score`, `/compliance/screen`, `/analytics/network`, `/network/health` |
+| Business (600 KTA) | 19 | `/identity/resolve`, `/kyc/verify`, `/certificate/manage`, `/container/seal`, `/batch/build`, `/permissions/manage` |
 
 ---
 
