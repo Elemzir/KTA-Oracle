@@ -66,6 +66,21 @@ const CC_HTML  = "public, max-age=60, s-maxage=300";
 const CC_PRICE = "public, max-age=30, s-maxage=30";
 const CC_WHALE = "public, max-age=300, s-maxage=300";
 
+const TOOL_RANK: Record<string, number> = {
+  unregistered: 0, free: 1, starter: 2, social: 3, pro: 4, business: 5,
+};
+const TOOL_TIER_NAME = ["unregistered", "free", "starter", "social", "pro", "business"];
+
+async function requireTier(env: Env, wallet: string, minRank: number): Promise<Response | null> {
+  if (!wallet)
+    return Response.json({ error: "wallet required", required: TOOL_TIER_NAME[minRank] }, { status: 401 });
+  const sub  = await loadSubscription(env, wallet).catch(() => null);
+  const rank = sub ? (TOOL_RANK[sub.tier] ?? 0) : 0;
+  if (rank < minRank)
+    return Response.json({ error: `Requires ${TOOL_TIER_NAME[minRank]} tier`, required: TOOL_TIER_NAME[minRank], current: sub?.tier ?? "unregistered" }, { status: 403 });
+  return null;
+}
+
 const BOT_PATHS = new Set([
   "/.env","/.env.local","/.env.production","/.env.development","/.env.backup","/.env.example",
   "/wp-admin","/wp-login.php","/wp-config.php","/wp-config.php.bak","/xmlrpc.php",
@@ -135,6 +150,9 @@ export default {
     }
 
     if (method === "GET" && pathname === "/whale/alerts") {
+      const wallet  = searchParams.get("wallet") ?? "";
+      const tierErr = await requireTier(env, wallet, 2);
+      if (tierErr) return tierErr;
       const alerts = await getWhaleAlerts(env);
       return Response.json({ alerts }, { headers: { "Cache-Control": CC_WHALE } });
     }
@@ -229,8 +247,10 @@ export default {
     }
 
     if (method === "GET" && pathname === "/wallet/history") {
-      const wallet = searchParams.get("wallet") ?? "";
+      const wallet  = searchParams.get("wallet") ?? "";
       if (!wallet) return Response.json({ error: "wallet required" }, { status: 400 });
+      const tierErr = await requireTier(env, wallet, 4);
+      if (tierErr) return tierErr;
       try {
         const cacheKey = `kta:cache:wallet_history:${wallet}`;
         const cached = await env.KV.get<Record<string, unknown>>(cacheKey, "json");
@@ -242,8 +262,10 @@ export default {
     }
 
     if (method === "GET" && pathname === "/wallet/score") {
-      const wallet = searchParams.get("wallet") ?? "";
+      const wallet  = searchParams.get("wallet") ?? "";
       if (!wallet) return Response.json({ error: "wallet required" }, { status: 400 });
+      const tierErr = await requireTier(env, wallet, 4);
+      if (tierErr) return tierErr;
       try {
         const cacheKey = `kta:cache:wallet_score:${wallet}`;
         const cached = await env.KV.get<Record<string, unknown>>(cacheKey, "json");
@@ -258,8 +280,11 @@ export default {
       let body: Record<string, unknown>;
       try { body = await request.json() as Record<string, unknown>; }
       catch { return Response.json({ error: "Invalid JSON" }, { status: 400 }); }
-      const wallet = String(body.wallet ?? "");
+      const wallet  = String(body.wallet ?? "");
+      const caller  = String(body.caller ?? wallet);
       if (!wallet) return Response.json({ error: "wallet required" }, { status: 400 });
+      const tierErr = await requireTier(env, caller, 4);
+      if (tierErr) return tierErr;
       try {
         const cKey = `kta:cache:compliance:${wallet}`;
         const cached = await env.KV.get<Record<string,unknown>>(cKey, "json");
@@ -272,6 +297,9 @@ export default {
     }
 
     if (method === "GET" && pathname === "/network/health") {
+      const wallet  = searchParams.get("wallet") ?? "";
+      const tierErr = await requireTier(env, wallet, 4);
+      if (tierErr) return tierErr;
       try {
         const cached = await env.KV.get<Record<string, unknown>>("kta:cache:network_health", "json");
         if (cached) return Response.json(cached);
@@ -282,6 +310,9 @@ export default {
     }
 
     if (method === "GET" && pathname === "/analytics/network") {
+      const wallet  = searchParams.get("wallet") ?? "";
+      const tierErr = await requireTier(env, wallet, 4);
+      if (tierErr) return tierErr;
       try {
         const cached = await env.KV.get<Record<string, unknown>>("kta:cache:analytics_network", "json");
         if (cached) return Response.json(cached);
@@ -292,8 +323,11 @@ export default {
     }
 
     if (method === "GET" && pathname === "/identity/resolve") {
-      const q = searchParams.get("username") ?? searchParams.get("wallet") ?? searchParams.get("q") ?? "";
+      const q      = searchParams.get("username") ?? searchParams.get("q") ?? searchParams.get("wallet") ?? "";
+      const caller = searchParams.get("caller") ?? (q.startsWith("keeta_") ? q : "");
       if (!q) return Response.json({ error: "username or wallet query required" }, { status: 400 });
+      const tierErr = await requireTier(env, caller, 5);
+      if (tierErr) return tierErr;
       try {
         const cKey = `kta:cache:identity:${q.toLowerCase()}`;
         const cached = await env.KV.get<Record<string,unknown>>(cKey, "json");
@@ -308,6 +342,8 @@ export default {
     if (method === "POST" && pathname === "/kyc/verify") {
       let body: Record<string, unknown> = {};
       try { body = await request.json() as Record<string, unknown>; } catch {}
+      const tierErr = await requireTier(env, String(body.wallet ?? ""), 5);
+      if (tierErr) return tierErr;
       try {
         const wallet = String(body.wallet ?? "");
         const cKey = wallet ? `kta:cache:kyc:${wallet}` : null;
@@ -326,8 +362,11 @@ export default {
       let body: Record<string, unknown>;
       try { body = await request.json() as Record<string, unknown>; }
       catch { return Response.json({ error: "Invalid JSON" }, { status: 400 }); }
-      const wallet = String(body.wallet ?? "");
+      const wallet  = String(body.wallet ?? "");
+      const caller  = String(body.caller ?? wallet);
       if (!wallet) return Response.json({ error: "wallet required" }, { status: 400 });
+      const tierErr = await requireTier(env, caller, 5);
+      if (tierErr) return tierErr;
       try { return Response.json(await getWalletCertificates(env, wallet)); }
       catch (e) { return Response.json({ error: String(e) }, { status: 500 }); }
     }
@@ -336,8 +375,11 @@ export default {
       let body: Record<string, unknown>;
       try { body = await request.json() as Record<string, unknown>; }
       catch { return Response.json({ error: "Invalid JSON" }, { status: 400 }); }
-      const wallet = String(body.wallet ?? "");
+      const wallet  = String(body.wallet ?? "");
+      const caller  = String(body.caller ?? wallet);
       if (!wallet) return Response.json({ error: "wallet required" }, { status: 400 });
+      const tierErr = await requireTier(env, caller, 5);
+      if (tierErr) return tierErr;
       try { return Response.json(await getWalletPermissions(env, wallet)); }
       catch (e) { return Response.json({ error: String(e) }, { status: 500 }); }
     }
@@ -346,6 +388,9 @@ export default {
       let body: Record<string, unknown>;
       try { body = await request.json() as Record<string, unknown>; }
       catch { return Response.json({ error: "Invalid JSON" }, { status: 400 }); }
+      const caller     = String(body.wallet ?? body.caller ?? "");
+      const tierErr    = await requireTier(env, caller, 5);
+      if (tierErr) return tierErr;
       const seed       = String(body.seed ?? "");
       const operations = body.operations as Array<{ method: string; args: unknown[]; account?: string }>;
       if (!seed || !Array.isArray(operations))
@@ -358,6 +403,8 @@ export default {
       let body: Record<string, unknown>;
       try { body = await request.json() as Record<string, unknown>; }
       catch { return Response.json({ error: "Invalid JSON" }, { status: 400 }); }
+      const tierErr = await requireTier(env, String(body.wallet ?? body.caller ?? ""), 5);
+      if (tierErr) return tierErr;
       const data = String(body.data ?? body.plaintext ?? "");
       if (!data) return Response.json({ error: "data required" }, { status: 400 });
       try {
