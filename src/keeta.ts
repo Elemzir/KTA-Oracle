@@ -349,10 +349,11 @@ export async function getWalletHistory(
         const raw = entry.value;
         if (raw == null) continue;
         const amt = typeof raw === "bigint" ? Number(raw) : Number(String(raw).replace("n", ""));
+        const outgoing = amt < 0;
         txs.push({
-          from:   entry.isReceive ? otherAddr : wallet,
-          to:     entry.isReceive ? wallet    : otherAddr,
-          amount: (amt / KTA_NATIVE_DECIMALS).toFixed(6),
+          from:   outgoing ? wallet    : otherAddr,
+          to:     outgoing ? otherAddr : wallet,
+          amount: (Math.abs(amt) / KTA_NATIVE_DECIMALS).toFixed(6),
           token:  KTA_NATIVE_TOKEN,
           ts:     0,
         });
@@ -407,9 +408,8 @@ export async function screenWallet(
 export async function getNetworkHealth(
   env: Env,
 ): Promise<{ status: string; latency_ms: number; head_block: number; network: string; ts: number }> {
-  const signer     = await accountFromPassphrase(env.KEETA_SEED);
+  const { client } = await getOracleClient(env.KEETA_SEED);
   const t0         = Date.now();
-  const client     = (UserClient as any).fromNetwork("main", signer);
   const head       = await client.head().catch(() => null);
   const latency_ms = Date.now() - t0;
   return {
@@ -424,11 +424,10 @@ export async function getNetworkHealth(
 export async function getNetworkAnalytics(
   env: Env,
 ): Promise<{ head_block: number; oracle_kta_balance: number; network: string; ts: number }> {
-  const signer = await accountFromPassphrase(env.KEETA_SEED);
-  const client = (UserClient as any).fromNetwork("main", signer);
+  const { account, client } = await getOracleClient(env.KEETA_SEED);
   const [head, bal] = await Promise.all([
     client.head().catch(() => null),
-    client.balance(signer, KTA_NATIVE_TOKEN).catch(() => null),
+    client.balance(account, KTA_NATIVE_TOKEN).catch(() => null),
   ]);
   return {
     head_block:          Number((head as any)?.height ?? (head as any)?.number ?? 0),
@@ -442,10 +441,9 @@ export async function resolveIdentity(
   env: Env,
   query: string,
 ): Promise<{ result: unknown; query: string; ts: number }> {
-  const signer         = await accountFromPassphrase(env.KEETA_SEED);
-  const client         = (UserClient as any).fromNetwork("main", signer);
-  const usernameClient = new (Username.Client as any)(client, { signer, account: signer });
-  const result         = query.startsWith("keeta_")
+  const { account, client } = await getOracleClient(env.KEETA_SEED);
+  const usernameClient      = new (Username.Client as any)(client, { signer: account, account });
+  const result              = query.startsWith("keeta_")
     ? await usernameClient.search({ search: query }).catch(() => null)
     : await usernameClient.resolve(query).catch(() => null);
   return { result, query, ts: Date.now() };
@@ -454,9 +452,8 @@ export async function resolveIdentity(
 export async function getKycInfo(
   env: Env,
 ): Promise<{ supported_countries: unknown; ts: number }> {
-  const signer    = await accountFromPassphrase(env.KEETA_SEED);
-  const client    = (UserClient as any).fromNetwork("main", signer);
-  const kycClient = new (KYC.Client as any)(client, { signer, account: signer });
+  const { account, client } = await getOracleClient(env.KEETA_SEED);
+  const kycClient           = new (KYC.Client as any)(client, { signer: account, account });
   const supported_countries = await kycClient.getSupportedCountries().catch(() => []);
   return { supported_countries, ts: Date.now() };
 }
@@ -465,9 +462,8 @@ export async function getWalletCertificates(
   env: Env,
   wallet: string,
 ): Promise<{ certificates: unknown; ts: number }> {
-  const signer = await accountFromPassphrase(env.KEETA_SEED);
-  const client = (UserClient as any).fromNetwork("main", signer);
-  const target = KeetaNetLib.Account.fromPublicKeyString(wallet);
+  const { client } = await getOracleClient(env.KEETA_SEED);
+  const target     = KeetaNetLib.Account.fromPublicKeyString(wallet);
   const certificates = await client.getCertificates(target).catch(() => []);
   return { certificates, ts: Date.now() };
 }
@@ -476,10 +472,9 @@ export async function getWalletPermissions(
   env: Env,
   wallet: string,
 ): Promise<{ acls: unknown; ts: number }> {
-  const signer = await accountFromPassphrase(env.KEETA_SEED);
-  const client = (UserClient as any).fromNetwork("main", signer);
-  const target = KeetaNetLib.Account.fromPublicKeyString(wallet);
-  const acls   = await client.listACLsByPrincipal(target).catch(() => []);
+  const { client } = await getOracleClient(env.KEETA_SEED);
+  const target     = KeetaNetLib.Account.fromPublicKeyString(wallet);
+  const acls       = await client.listACLsByPrincipal(target).catch(() => []);
   return { acls, ts: Date.now() };
 }
 
