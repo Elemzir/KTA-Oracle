@@ -222,11 +222,9 @@ export async function verifyPayment(
 
   try {
     const { client, account: oracleAccount } = await getOracleClient(env.KEETA_SEED);
-    const derivedAddr = (oracleAccount as any).publicKeyString?.get?.() ?? "";
-    const resolvedOracle = derivedAddr || oracleAddr;
-    const subAccount  = KeetaNetLib.Account.fromPublicKeyString(subscriberWallet);
-    const subHistory  = await client.history(subAccount);
-    const subStaples  = Array.isArray(subHistory) ? subHistory : [];
+    const resolvedOracle = (oracleAccount as any).publicKeyString?.get?.() ?? oracleAddr;
+    const oracleHistory  = await client.history(oracleAccount);
+    const subStaples     = Array.isArray(oracleHistory) ? oracleHistory : [];
 
     let total = 0;
     for (const staple of subStaples) {
