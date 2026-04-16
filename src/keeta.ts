@@ -221,7 +221,9 @@ export async function verifyPayment(
   if (!env.KEETA_SEED) return { verified: false, amount: 0, error: "KEETA_SEED not configured" };
 
   try {
-    const { client } = await getOracleClient(env.KEETA_SEED);
+    const { client, account: oracleAccount } = await getOracleClient(env.KEETA_SEED);
+    const derivedAddr = (oracleAccount as any).publicKeyString?.get?.() ?? "";
+    const resolvedOracle = derivedAddr || oracleAddr;
     const subAccount  = KeetaNetLib.Account.fromPublicKeyString(subscriberWallet);
     const subHistory  = await client.history(subAccount);
     const subStaples  = Array.isArray(subHistory) ? subHistory : [];
@@ -231,7 +233,7 @@ export async function verifyPayment(
       try {
         const accounts = (staple as any)?.effects?.accounts as Record<string, unknown> | undefined;
         if (!accounts) continue;
-        const oracleEntry = accounts[oracleAddr] as Record<string, unknown> | undefined;
+        const oracleEntry = accounts[resolvedOracle] as Record<string, unknown> | undefined;
         if (!oracleEntry) continue;
         const balance = (oracleEntry.fields as any)?.balance as Record<string, unknown> | undefined;
         if (!balance) continue;
