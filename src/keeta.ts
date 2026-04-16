@@ -480,8 +480,12 @@ export async function getWalletPermissions(
 }
 
 const BATCH_METHOD_ALLOWLIST = new Set([
-  "transfer", "send", "createCertificate", "revokeCertificate",
-  "setPermissions", "revokePermissions", "addACL", "removeACL",
+  "send", "receive",
+  "updatePermissions",
+  "modifyCertificate",
+  "modifyTokenSupply", "modifyTokenBalance",
+  "setInfo", "setRep",
+  "generateIdentifier",
 ]);
 
 export async function executeBatch(
