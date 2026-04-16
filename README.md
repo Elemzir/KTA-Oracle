@@ -225,6 +225,7 @@ The Oracle classifies every price move and emits a `changeLevel` to Social. Soci
 | `GET /rate` returns stale data | KV cache miss on cold start | The cron writes FX data every 5 minutes. Wait one cron cycle and retry |
 | `KV put() limit exceeded` | Free plan KV write quota hit | Upgrade to Cloudflare Workers Paid ($5/mo) for 1M writes/month |
 | Activation returns 0 KTA | Oracle wallet has no KTA balance | Oracle wallet needs KTA to call `getEstimates()` from Anchor FX |
+| `429 API quota exceeded` | Tier call limit reached | Starter: 60 total. Social: 150/month. Pro: 300/month. Business: unlimited. Upgrade at `/checkout` |
 
 **Check subscription status:**
 ```

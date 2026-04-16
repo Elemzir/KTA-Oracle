@@ -19,7 +19,7 @@ import {
   appendHourlyPoint, computeRollingChanges,
 } from "./store.js";
 import {
-  activateWallet, loadSubscription,
+  activateWallet, loadSubscription, checkAndIncrQuota,
   TIER_REGISTRATION, TIER_STARTER, TIER_SOCIAL, TIER_PRO, TIER_BUSINESS, FREE_CALLS_PER_DAY,
 } from "./subscriptions.js";
 
@@ -78,6 +78,11 @@ async function requireTier(env: Env, wallet: string, minRank: number): Promise<R
   const rank = sub ? (TOOL_RANK[sub.tier] ?? 0) : 0;
   if (rank < minRank)
     return Response.json({ error: `Requires ${TOOL_TIER_NAME[minRank]} tier`, required: TOOL_TIER_NAME[minRank], current: sub?.tier ?? "unregistered" }, { status: 403 });
+  if (sub) {
+    const quota = await checkAndIncrQuota(env, wallet, sub.tier);
+    if (!quota.allowed)
+      return Response.json({ error: "API quota exceeded", tier: sub.tier, remaining: 0, reset: quota.reset ?? null, upgrade: "https://kta-oracle.top/checkout" }, { status: 429 });
+  }
   return null;
 }
 

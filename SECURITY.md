@@ -33,6 +33,10 @@ The oracle wallet address is public by design — it receives KTA payments from 
 
 `/fx/quote`, `/payment/send`, and `/verify-payment` require an `X-Internal-Secret` header. Requests without a valid secret receive a `401` immediately before any processing.
 
+### API Quotas
+
+All tier-gated endpoints enforce per-wallet call quotas tracked in Cloudflare KV: Starter 60 total calls over 30 days, Social 150 calls/month, Pro 300 calls/month, Business unlimited. Quota is checked and incremented atomically before any on-chain or SDK operation. Exceeded quotas return HTTP 429.
+
 ### Input Validation
 
 All wallet addresses are validated against the `keeta_[a-z0-9]+` pattern before any on-chain or KV operation. Query parameters are type-checked and bounded before use.

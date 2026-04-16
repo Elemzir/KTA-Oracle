@@ -28,10 +28,11 @@ Returns: `tier`, `amount`, `socialLifetime`, `expiresAt`, `activatedAt`.
 | Wallet shows `unregistered` after sending KTA | Activation not triggered | Call `POST /activate` (via Social `/activate-oracle`) after sending KTA |
 | No alerts despite being registered | Trial exhausted or wallet not activated | Check `/subscription?wallet=` — if `tier: unregistered`, activate first |
 | Alerts stopped after some time | Oracle 30-day window expired | Social alerts survive if `socialLifetime: true` (50+ KTA sent). Renew Oracle by sending more KTA and re-activating |
-| Wrong currency in alerts | FX rate missed a cycle | Re-register with the correct currency. Rates update every cron cycle (~60s) |
-| `GET /rate` returns stale data | KV cold start or missed cron | Cron writes FX data every minute. Wait one cycle and retry |
+| Wrong currency in alerts | FX rate missed a cycle | Re-register with the correct currency. Rates update every cron cycle (~5 min) |
+| `GET /rate` returns stale data | KV cold start or missed cron | Cron writes FX data every 5 minutes. Wait one cycle and retry |
 | Cron not firing / KV stale | Worker not deployed or cron disabled | Verify `wrangler.toml` cron trigger is `*/5 * * * *` and worker is deployed |
 | Activation returns 0 KTA / wrong tier | Oracle wallet has no KTA balance | Oracle wallet needs KTA balance for `getEstimates()` to return non-zero prices |
+| `429 API quota exceeded` | Tier call limit reached | Starter: 60 total calls. Social: 150/month. Pro: 300/month. Renew (Starter) or wait for next month. Upgrade at `/checkout` |
 
 ---
 
@@ -39,9 +40,9 @@ Returns: `tier`, `amount`, `socialLifetime`, `expiresAt`, `activatedAt`.
 
 | KTA sent | Oracle tier | Social alerts | Duration |
 |----------|-------------|---------------|----------|
-| 0.1 | Free | Trial (100 total) | Permanent |
-| 10 | Starter | Trial only | 30 days |
-| 50 | Starter | **Lifetime** | 30 days |
+| 0.1 | Free | Trial (100 total) | 5 days |
+| 10 | Starter | Trial (100 cap) | 30 days |
+| 50 | Social | **Lifetime** | 30 days |
 | 300 | Pro | **Lifetime** | 30 days |
 | 600 | Business | **Lifetime** | 30 days |
 

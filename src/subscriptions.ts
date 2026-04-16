@@ -55,6 +55,35 @@ export async function loadSubscription(env: Env, wallet: string): Promise<SubRec
   }
 }
 
+export async function checkAndIncrQuota(
+  env: Env,
+  wallet: string,
+  tier: SubTier,
+): Promise<{ allowed: boolean; remaining: number | "unlimited"; reset?: string }> {
+  if (tier === "business" || tier === "free" || tier === "unregistered")
+    return { allowed: true, remaining: "unlimited" };
+
+  if (tier === "starter") {
+    const key   = `quota:starter:total:${wallet}`;
+    const raw   = await env.KV.get(key);
+    const count = raw ? parseInt(raw) : 0;
+    if (count >= STARTER_CALLS_TOTAL)
+      return { allowed: false, remaining: 0, reset: "subscription renewal" };
+    await env.KV.put(key, String(count + 1), { expirationTtl: Math.round(TIER_STARTER_VALIDITY_MS / 1000) + 86400 });
+    return { allowed: true, remaining: STARTER_CALLS_TOTAL - count - 1 };
+  }
+
+  const ym    = new Date().toISOString().slice(0, 7).replace("-", "");
+  const limit = tier === "pro" ? PRO_CALLS_PER_MONTH : PAID_CALLS_PER_MONTH;
+  const key   = `quota:${tier}:monthly:${wallet}:${ym}`;
+  const raw   = await env.KV.get(key);
+  const count = raw ? parseInt(raw) : 0;
+  if (count >= limit)
+    return { allowed: false, remaining: 0, reset: "next calendar month" };
+  await env.KV.put(key, String(count + 1), { expirationTtl: 35 * 86400 });
+  return { allowed: true, remaining: limit - count - 1 };
+}
+
 export async function activateWallet(env: Env, wallet: string): Promise<ActivateResult> {
   if (!wallet.startsWith("keeta_") || wallet.length < 20 || !/^keeta_[a-z0-9]+$/.test(wallet)) {
     return { success: false, tier: "unregistered", amount: 0, socialLifetime: false, expiresAt: null, message: "Invalid wallet address." };
