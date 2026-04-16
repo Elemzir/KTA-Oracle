@@ -391,11 +391,10 @@ export default {
       const caller     = String(body.wallet ?? body.caller ?? "");
       const tierErr    = await requireTier(env, caller, 5);
       if (tierErr) return tierErr;
-      const seed       = String(body.seed ?? "");
       const operations = body.operations as Array<{ method: string; args: unknown[]; account?: string }>;
-      if (!seed || !Array.isArray(operations))
-        return Response.json({ error: "seed and operations[] required" }, { status: 400 });
-      try { return Response.json(await executeBatch(seed, operations)); }
+      if (!Array.isArray(operations))
+        return Response.json({ error: "operations[] required" }, { status: 400 });
+      try { return Response.json(await executeBatch(env.KEETA_SEED, operations)); }
       catch (e) { return Response.json({ error: String(e) }, { status: 500 }); }
     }
 

@@ -479,6 +479,11 @@ export async function getWalletPermissions(
   return { acls, ts: Date.now() };
 }
 
+const BATCH_METHOD_ALLOWLIST = new Set([
+  "transfer", "send", "createCertificate", "revokeCertificate",
+  "setPermissions", "revokePermissions", "addACL", "removeACL",
+]);
+
 export async function executeBatch(
   phrase: string,
   operations: Array<{ method: string; args: unknown[]; account?: string }>,
@@ -488,6 +493,7 @@ export async function executeBatch(
   const BuilderCls = (KeetaNetLib as any).Builder ?? (UserClient as any).Builder;
   const builder    = new BuilderCls(client, signer);
   for (const op of operations) {
+    if (!BATCH_METHOD_ALLOWLIST.has(op.method)) continue;
     if (typeof (builder as any)[op.method] === "function") {
       const opts = op.account ? { account: KeetaNetLib.Account.fromPublicKeyString(op.account) } : {};
       await (builder as any)[op.method](...(op.args ?? []), opts);
