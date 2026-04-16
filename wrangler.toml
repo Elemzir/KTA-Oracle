@@ -20,4 +20,5 @@ service = "kta"
 
 [vars]
 KEETA_ACCOUNT_INDEX = "0"
+ORACLE_WALLET = "keeta_aab4y4nd5ug4nnzjtp5fslfsrdv7pnxfbeexafwolqs4mgxrb2ppontfqb64tzi"
 
