@@ -216,15 +216,14 @@ export async function verifyPayment(
   subscriberWallet: string,
   requiredKta: number,
 ): Promise<{ verified: boolean; amount: number; error?: string }> {
-  if (!env.KEETA_SEED) return { verified: false, amount: 0, error: "KEETA_SEED not configured" };
+  const oracleAddr = env.ORACLE_WALLET ?? "";
+  if (!oracleAddr) return { verified: false, amount: 0, error: "ORACLE_WALLET not configured" };
 
   try {
-    const { account: oracleAccount, client } = await getOracleClient(env.KEETA_SEED);
-    const oracleAddr: string = (oracleAccount as any).publicKeyString?.get?.() ?? "";
-
     const subAccount = KeetaNetLib.Account.fromPublicKeyString(subscriberWallet);
-    const subHistory = await client.history(subAccount);
-    const subStaples = Array.isArray(subHistory) ? subHistory : [];
+    const readClient  = (UserClient as any).fromNetwork("main", subAccount);
+    const subHistory  = await readClient.history(subAccount);
+    const subStaples  = Array.isArray(subHistory) ? subHistory : [];
 
     let total = 0;
     for (const staple of subStaples) {

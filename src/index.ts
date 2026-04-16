@@ -165,19 +165,20 @@ export default {
       const wallet = typeof body.wallet === "string" ? body.wallet.trim() : "";
       if (!wallet) return Response.json({ error: "wallet required" }, { status: 400 });
 
-      const result = await activateWallet(env, wallet);
-
-      if (result.success) {
-        const nb = JSON.stringify({ wallet, socialLifetime: result.socialLifetime, tier: result.tier, expiresAt: result.expiresAt ? new Date(result.expiresAt).getTime() : undefined });
-        const nh = { "X-Internal-Secret": env.INTERNAL_SECRET, "Content-Type": "application/json" };
-        if (env.SOCIAL_SERVICE) {
-          ctx.waitUntil(env.SOCIAL_SERVICE.fetch(new Request("https://kta-social/oracle-activate", { method: "POST", headers: nh, body: nb })).catch(() => {}));
-        } else if (env.KTA_SOCIAL_URL) {
-          ctx.waitUntil(fetch(`${env.KTA_SOCIAL_URL}/oracle-activate`, { method: "POST", headers: nh, body: nb, signal: AbortSignal.timeout(20000) }).catch(() => {}));
+      ctx.waitUntil((async () => {
+        const result = await activateWallet(env, wallet);
+        if (result.success) {
+          const nb = JSON.stringify({ wallet, socialLifetime: result.socialLifetime, tier: result.tier, expiresAt: result.expiresAt ? new Date(result.expiresAt).getTime() : undefined });
+          const nh = { "X-Internal-Secret": env.INTERNAL_SECRET, "Content-Type": "application/json" };
+          if (env.SOCIAL_SERVICE) {
+            await env.SOCIAL_SERVICE.fetch(new Request("https://kta-social/oracle-activate", { method: "POST", headers: nh, body: nb })).catch(() => {});
+          } else if (env.KTA_SOCIAL_URL) {
+            await fetch(`${env.KTA_SOCIAL_URL}/oracle-activate`, { method: "POST", headers: nh, body: nb, signal: AbortSignal.timeout(20000) }).catch(() => {});
+          }
         }
-      }
+      })());
 
-      return Response.json(result, { status: result.success ? 200 : 402 });
+      return Response.json({ success: true, queued: true, message: "Chain scan started — check your status in a moment." });
     }
 
     if (method === "GET" && pathname === "/subscription") {
