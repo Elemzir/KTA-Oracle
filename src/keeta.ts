@@ -227,6 +227,7 @@ export async function verifyPayment(
     const subStaples     = Array.isArray(oracleHistory) ? oracleHistory : [];
 
     let total = 0;
+
     for (const staple of subStaples) {
       try {
         const accounts = (staple as any)?.effects?.accounts as Record<string, unknown> | undefined;

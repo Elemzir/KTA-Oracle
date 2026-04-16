@@ -72,7 +72,7 @@ export async function activateWallet(env: Env, wallet: string): Promise<Activate
       amount: total,
       socialLifetime: false,
       expiresAt: null,
-      message: `No qualifying payment found (${total.toFixed(6)} KTA). Minimum: ${TIER_REGISTRATION} KTA for free tier (${FREE_CALLS_PER_DAY} calls/day). Send to the oracle wallet with your wallet address as memo, then call activate again.`,
+      message: `No qualifying payment found (${total.toFixed(6)} KTA sent from this wallet to the oracle). Ensure you are entering the exact wallet address you sent KTA from.`,
     };
   }
 
