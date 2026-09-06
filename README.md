@@ -8,7 +8,7 @@ Real-time KTA price intelligence, on-chain analytics, whale detection, complianc
 
 Payments are fully on-chain. Tier activation scans on-chain history in under 2 seconds. Every KTA sent from the same wallet accumulates — you're already on the ladder at 0.1 KTA.
 
-→ **[kta-oracle.top](https://kta-oracle.top)** · [Tools catalog](https://kta-oracle.top/tools) · [Machine-readable spec](https://kta.netrate.workers.dev/llms.txt) · [Companion: KTA-Social](https://github.com/Elemzir/KTA-Social)
+→ **[kta-oracle.top](https://kta-oracle.top)** · [Tools catalog](https://kta-oracle.top/tools) · [Machine-readable spec](https://kta-oracle.top/llms.txt) · [Companion: KTA-Social](https://github.com/Elemzir/KTA-Social)
 
 ---
 
@@ -178,9 +178,9 @@ KTA Oracle exposes 19 SDK tools accessible through KTA Social at `/tools`. AI ag
 ### Agent quick-start
 
 ```
-GET  https://kta.netrate.workers.dev/llms.txt        # full machine-readable spec
-GET  https://kta.netrate.workers.dev/status?wallet=  # current tier + tools._unlock hint
-GET  https://kta.netrate.workers.dev/stream?wallet=  # SSE live price feed
+GET  https://kta-oracle.top/llms.txt        # full machine-readable spec
+GET  https://kta-oracle.top/status?wallet=  # current tier + tools._unlock hint
+GET  https://kta-oracle.top/stream?wallet=  # SSE live price feed
 ```
 
 Every `/status` response includes a `tools._unlock` object showing: how many tools are available now, how many are locked, and exactly how much KTA is needed to unlock the next tier's tools. Agents can use this to autonomously discover upgrade paths.
@@ -194,6 +194,13 @@ Every `/status` response includes a `tools._unlock` object showing: how many too
 | Social (50 KTA) | 8 | Same endpoints + **lifetime** social alerts |
 | Pro (300 KTA) | 13 | `/wallet/history`, `/wallet/score`, `/compliance/screen`, `/analytics/network`, `/network/health` |
 | Business (600 KTA) | 19 | `/identity/resolve`, `/kyc/verify`, `/certificate/manage`, `/container/seal`, `/batch/build`, `/permissions/manage` |
+
+### Model Context Protocol (MCP) & AI Agent Integration
+
+All 19 tools provide standardized JSON schemas for MCP servers, OpenAI function calling, Claude Desktop, and autonomous agents:
+- **Discovery**: Agents fetch `https://kta-oracle.top/llms.txt` for machine-readable tool documentation.
+- **MCP Client Ready**: Connectable via standard MCP HTTP/fetch adapters or custom MCP tool wrappers.
+- **Autonomous Escalation**: Agents query `GET /status?wallet=` to inspect unlocked tools and calculate remaining KTA needed for tier upgrades.
 
 ---
 
