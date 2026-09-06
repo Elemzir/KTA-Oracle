@@ -264,58 +264,101 @@ export function classifyWhale(amountKta: number): WhaleAlert["classification"] {
   return "whale";
 }
 
+export async function fetchPoolWhaleAlerts(currentPrice: number): Promise<WhaleAlert[]> {
+  try {
+    const res = await fetch(
+      "https://api.geckoterminal.com/api/v2/networks/base/pools/0xd9edc75a3a797ec92ca370f19051babebfb2edee/trades",
+      { signal: AbortSignal.timeout(6000), headers: { "Accept": "application/json" } }
+    );
+    if (!res.ok) return [];
+    const data = await res.json() as { data?: Array<{ attributes?: Record<string, unknown> }> };
+    const items = data.data ?? [];
+    const alerts: WhaleAlert[] = [];
+    for (const item of items) {
+      const attr = item.attributes;
+      if (!attr) continue;
+      const fromAmt = parseFloat(String(attr.from_token_amount ?? "0")) || 0;
+      const toAmt = parseFloat(String(attr.to_token_amount ?? "0")) || 0;
+      const ktaAmt = Math.max(fromAmt, toAmt);
+      if (ktaAmt < WHALE_THRESHOLD_KTA) continue;
+      const volUsd = parseFloat(String(attr.volume_in_usd ?? "0")) || (ktaAmt * currentPrice);
+      const ts = attr.block_timestamp ? new Date(String(attr.block_timestamp)).getTime() : Date.now();
+      alerts.push({
+        amountKta: Math.round(ktaAmt),
+        valueUsd: volUsd,
+        classification: classifyWhale(ktaAmt),
+        ts,
+      });
+    }
+    return alerts;
+  } catch {
+    return [];
+  }
+}
+
 export async function detectRecentWhales(
   env: Env,
   currentPrice: number,
   _lastCheckTs: number,
 ): Promise<WhaleAlert | null> {
-  if (!env.KEETA_SEED) return null;
+  if (env.KEETA_SEED) {
+    try {
+      const { account: oracleAccount, client } = await getOracleClient(env.KEETA_SEED);
+      const oracleAddr: string = (oracleAccount as any).publicKeyString?.get?.() ?? "";
+      const history = await client.history(oracleAccount);
+      const staples = Array.isArray(history) ? history : [];
 
-  try {
-    const { account: oracleAccount, client } = await getOracleClient(env.KEETA_SEED);
-    const oracleAddr: string = (oracleAccount as any).publicKeyString?.get?.() ?? "";
-    const history = await client.history(oracleAccount);
-    const staples = Array.isArray(history) ? history : [];
+      const lastBlockRaw = await env.KV.get("kta:last_whale_block");
+      const lastBlock = lastBlockRaw ? BigInt(lastBlockRaw) : 0n;
+      let maxBlock = lastBlock;
 
-    const lastBlockRaw = await env.KV.get("kta:last_whale_block");
-    const lastBlock = lastBlockRaw ? BigInt(lastBlockRaw) : 0n;
-    let maxBlock = lastBlock;
+      for (const staple of staples) {
+        try {
+          const accounts = (staple as any)?.effects?.accounts as Record<string, unknown> | undefined;
+          const oracleEntry = accounts?.[oracleAddr] as Record<string, unknown> | undefined;
+          if (!oracleEntry) continue;
+          const rawBlock = (staple as any)?.effects?.metadata?.blockCount;
+          const blockCount = rawBlock != null
+            ? (typeof rawBlock === "bigint" ? rawBlock : BigInt(String(rawBlock).replace("n", "")))
+            : 0n;
+          if (blockCount > 0n && blockCount <= lastBlock) continue;
+          if (blockCount > maxBlock) maxBlock = blockCount;
+          const balance = (oracleEntry.fields as any)?.balance as Record<string, unknown> | undefined;
+          if (!balance) continue;
+          const ktaEntries = balance[KTA_NATIVE_TOKEN];
+          if (!Array.isArray(ktaEntries)) continue;
+          for (const entry of ktaEntries as Array<Record<string, unknown>>) {
+            const raw = entry.value;
+            if (raw == null) continue;
+            const amt = typeof raw === "bigint" ? Number(raw) : Number(String(raw).replace("n", ""));
+            const amountKta = amt / KTA_NATIVE_DECIMALS;
+            if (amountKta < WHALE_THRESHOLD_KTA) continue;
+            if (maxBlock > lastBlock)
+              await env.KV.put("kta:last_whale_block", maxBlock.toString());
+            return {
+              amountKta,
+              valueUsd:       amountKta * currentPrice,
+              classification: classifyWhale(amountKta),
+              ts:             Date.now(),
+            };
+          }
+        } catch {}
+      }
+      if (maxBlock > lastBlock)
+        await env.KV.put("kta:last_whale_block", maxBlock.toString());
+    } catch {}
+  }
 
-    for (const staple of staples) {
-      try {
-        const accounts = (staple as any)?.effects?.accounts as Record<string, unknown> | undefined;
-        const oracleEntry = accounts?.[oracleAddr] as Record<string, unknown> | undefined;
-        if (!oracleEntry) continue;
-        const rawBlock = (staple as any)?.effects?.metadata?.blockCount;
-        const blockCount = rawBlock != null
-          ? (typeof rawBlock === "bigint" ? rawBlock : BigInt(String(rawBlock).replace("n", "")))
-          : 0n;
-        if (blockCount > 0n && blockCount <= lastBlock) continue;
-        if (blockCount > maxBlock) maxBlock = blockCount;
-        const balance = (oracleEntry.fields as any)?.balance as Record<string, unknown> | undefined;
-        if (!balance) continue;
-        const ktaEntries = balance[KTA_NATIVE_TOKEN];
-        if (!Array.isArray(ktaEntries)) continue;
-        for (const entry of ktaEntries as Array<Record<string, unknown>>) {
-          const raw = entry.value;
-          if (raw == null) continue;
-          const amt = typeof raw === "bigint" ? Number(raw) : Number(String(raw).replace("n", ""));
-          const amountKta = amt / KTA_NATIVE_DECIMALS;
-          if (amountKta < WHALE_THRESHOLD_KTA) continue;
-          if (maxBlock > lastBlock)
-            await env.KV.put("kta:last_whale_block", maxBlock.toString());
-          return {
-            amountKta,
-            valueUsd:       amountKta * currentPrice,
-            classification: classifyWhale(amountKta),
-            ts:             Date.now(),
-          };
-        }
-      } catch {}
+  const poolAlerts = await fetchPoolWhaleAlerts(currentPrice);
+  if (poolAlerts.length) {
+    const lastWhaleTradeTs = Number(await env.KV.get("kta:last_whale_trade_ts") ?? "0");
+    const latest = poolAlerts[0];
+    if (latest && latest.ts > lastWhaleTradeTs) {
+      await env.KV.put("kta:last_whale_trade_ts", String(latest.ts));
+      return latest;
     }
-    if (maxBlock > lastBlock)
-      await env.KV.put("kta:last_whale_block", maxBlock.toString());
-  } catch {}
+  }
+
   return null;
 }
 

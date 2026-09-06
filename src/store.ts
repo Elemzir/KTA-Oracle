@@ -1,4 +1,5 @@
 import type { Env, WhaleAlert } from "./types.js";
+import { fetchPoolWhaleAlerts } from "./keeta.js";
 
 
 export async function readPriceHistory(env: Env): Promise<{
@@ -62,8 +63,15 @@ export function classifyMove(priceChange: number): "minor" | "normal" | "notable
   return null;
 }
 
-export async function getWhaleAlerts(env: Env): Promise<WhaleAlert[]> {
-  return (await env.KV.get<WhaleAlert[]>("kta:whale_alerts", "json")) ?? [];
+export async function getWhaleAlerts(env: Env, currentPrice = 0.08): Promise<WhaleAlert[]> {
+  let alerts = await env.KV.get<WhaleAlert[]>("kta:whale_alerts", "json");
+  if (!alerts || !alerts.length) {
+    alerts = await fetchPoolWhaleAlerts(currentPrice);
+    if (alerts && alerts.length) {
+      await storeWhaleAlerts(env, alerts);
+    }
+  }
+  return alerts ?? [];
 }
 
 export async function storeWhaleAlerts(env: Env, alerts: WhaleAlert[]): Promise<void> {

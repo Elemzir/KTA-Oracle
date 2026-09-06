@@ -178,10 +178,16 @@ export default {
 
     if (method === "GET" && pathname === "/whale/alerts") {
       const wallet  = searchParams.get("wallet") ?? "";
+      const price   = (await env.KV.get<{ price?: number }>("kta:price_cache", "json"))?.price ?? 0.08;
+      const alerts  = await getWhaleAlerts(env, price);
+      if (!wallet) {
+        return Response.json({ alerts: alerts.slice(0, 4), preview: true }, { headers: { "Cache-Control": CC_WHALE } });
+      }
       const tierErr = await requireTier(env, wallet, 2);
-      if (tierErr) return tierErr;
-      const alerts = await getWhaleAlerts(env);
-      return Response.json({ alerts }, { headers: { "Cache-Control": CC_WHALE } });
+      if (tierErr) {
+        return Response.json({ alerts: alerts.slice(0, 2), preview: true, required: "starter" }, { headers: { "Cache-Control": CC_WHALE } });
+      }
+      return Response.json({ alerts, preview: false }, { headers: { "Cache-Control": CC_WHALE } });
     }
 
     if (method === "POST" && pathname === "/activate") {
@@ -493,12 +499,13 @@ async function runCron(env: Env, ctx: ExecutionContext): Promise<void> {
   } as unknown as Record<string, unknown>);
 
   const lastWhaleCheck = Number(lastWhaleCheckRaw ?? "0");
-  if (now - lastWhaleCheck >= 60 * 60 * 1000) {
+  if (now - lastWhaleCheck >= 5 * 60 * 1000) {
     await env.KV.put("kta:last_whale_check", String(now));
     const whale = await detectRecentWhales(env, price, lastCheckTs).catch(() => null);
     if (whale) {
-      const existing = await getWhaleAlerts(env);
-      await storeWhaleAlerts(env, [whale, ...existing]);
+      const existing = await getWhaleAlerts(env, price);
+      const filtered = [whale, ...existing.filter(e => Math.abs(e.ts - whale.ts) > 60_000)].slice(0, 15);
+      await storeWhaleAlerts(env, filtered);
       await emitToSocial(env, {
         type: "price_update",
         price, priceChange, change24h: c24h ?? 0, change7d: c7d,
