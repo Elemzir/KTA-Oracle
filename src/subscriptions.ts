@@ -34,7 +34,6 @@ export interface ActivateResult {
   message:        string;
 }
 
-
 function resolveFullTier(amount: number): SubTier {
   if (amount >= TIER_BUSINESS)     return "business";
   if (amount >= TIER_PRO)          return "pro";

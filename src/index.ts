@@ -26,13 +26,35 @@ import {
 async function getCachedMarketData(env: Env): Promise<{ price: number | null; c1h: number | null; c24h: number | null; c7d: number | null; volume24h: number | null; liquidityUsd: number | null; fresh: boolean }> {
   const cached = await env.KV.get<{ price: number; c1h: number | null; c24h: number | null; c7d: number | null; volume24h: number | null; liquidityUsd: number | null; ts: number }>("market:cache", "json");
   if (cached && Date.now() - cached.ts < 900_000) return { ...cached, fresh: false };
+
+  let anchorPrice: number | null = null;
+  if (env.KEETA_SEED) {
+    try {
+      const anchorRes = await fetchAnchorPrice(env.KEETA_SEED);
+      if (anchorRes?.price && isFinite(anchorRes.price) && anchorRes.price > 0) {
+        anchorPrice = anchorRes.price;
+      }
+    } catch {}
+  }
+
   const fetched = await fetchMarketData();
-  if (fetched.price) {
-    await env.KV.put("market:cache", JSON.stringify({ ...fetched, ts: Date.now() }), { expirationTtl: 1800 });
-    return { ...fetched, fresh: true };
+  const price = anchorPrice ?? fetched.price;
+
+  if (price) {
+    const data = {
+      price,
+      c1h: fetched.c1h,
+      c24h: fetched.c24h,
+      c7d: fetched.c7d,
+      volume24h: fetched.volume24h,
+      liquidityUsd: fetched.liquidityUsd,
+      ts: Date.now(),
+    };
+    await env.KV.put("market:cache", JSON.stringify(data), { expirationTtl: 1800 });
+    return { ...data, fresh: true };
   }
   if (cached) return { ...cached, fresh: false };
-  return { ...fetched, fresh: false };
+  return { ...fetched, price: null, fresh: false };
 }
 
 async function getFxRate(env: Env, currency: string): Promise<number | null> {
