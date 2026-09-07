@@ -328,6 +328,16 @@ export function renderHome(socialUrl: string): string {
 <meta property="og:url" content="${base || "https://kta-oracle.top"}/oracle">
 <meta property="og:title" content="KTA Oracle - Intelligence Engine">
 <meta property="og:description" content="Real-time price data, FX rates, whale detection, and on-chain analytics - running natively on Keeta Network.">
+<meta property="og:image" content="${base || "https://kta-oracle.top"}/og.png">
+<meta property="og:image:secure_url" content="${base || "https://kta-oracle.top"}/og.png">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="KTA Oracle - Intelligence Engine">
+<meta name="twitter:description" content="Real-time price data, FX rates, whale detection, and on-chain analytics - running natively on Keeta Network.">
+<meta name="twitter:image" content="${base || "https://kta-oracle.top"}/og.png">
+<meta name="twitter:image:alt" content="KTA Oracle - Intelligence Engine">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <style>${CSS}</style>
 </head>
