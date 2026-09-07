@@ -147,27 +147,37 @@ export default {
       return Response.json({ wallet, ts: Date.now() });
     }
 
-    if (method === "GET" && pathname === "/price") {
+    if (method === "GET" && (pathname === "/price" || pathname === "/price/live")) {
       const now = Date.now();
+      const market = await getCachedMarketData(env);
       const history = await readPriceHistory(env);
-      if (!history.last) return Response.json({ error: "Price unavailable" }, { status: 503 });
-      return Response.json({ price: history.last, change_pct: history.c1h ?? null, change_24h: history.c24h ?? null, change_7d: history.c7d ?? null, ts: now }, { headers: { "Cache-Control": CC_PRICE } });
+      const price = market.price ?? history.last;
+      if (!price) return Response.json({ error: "Price unavailable" }, { status: 503 });
+      if (market.price && market.price !== history.last) {
+        ctx.waitUntil(writePriceHistory(env, market.price, now, history, {
+          c1h: market.c1h,
+          c24h: market.c24h,
+          c7d: market.c7d,
+        }));
+      }
+      return Response.json({
+        price,
+        change_pct: market.c1h ?? history.c1h ?? null,
+        change_24h: market.c24h ?? history.c24h ?? null,
+        change_7d: market.c7d ?? history.c7d ?? null,
+        ts: now,
+      }, { headers: { "Cache-Control": CC_PRICE } });
     }
 
     if (method === "GET" && pathname === "/rate") {
       const currency  = searchParams.get("currency")?.toUpperCase() ?? "USD";
+      const market    = await getCachedMarketData(env);
       const history   = await readPriceHistory(env);
-      if (!history.last) return Response.json({ error: "Rate unavailable" }, { status: 503 });
+      const price     = market.price ?? history.last;
+      if (!price) return Response.json({ error: "Rate unavailable" }, { status: 503 });
       const fxMul     = await getFxRate(env, currency);
-      const converted = fxMul != null ? history.last * fxMul : history.last;
+      const converted = fxMul != null ? price * fxMul : price;
       return Response.json({ currency, rate: `1 KTA = ${converted.toFixed(6)} ${currency}`, price: converted, ts: Date.now() }, { headers: { "Cache-Control": CC_PRICE } });
-    }
-
-    if (method === "GET" && pathname === "/price/live") {
-      const now = Date.now();
-      const history = await readPriceHistory(env);
-      if (!history.last) return Response.json({ error: "unavailable" }, { status: 503 });
-      return Response.json({ price: history.last, change_pct: history.c1h ?? null, change_24h: history.c24h ?? null, change_7d: history.c7d ?? null, ts: now }, { headers: { "Cache-Control": CC_PRICE } });
     }
 
     if (method === "GET" && pathname === "/price/history") {
