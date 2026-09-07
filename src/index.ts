@@ -499,7 +499,7 @@ async function runCron(env: Env, ctx: ExecutionContext): Promise<void> {
   } as unknown as Record<string, unknown>);
 
   const lastWhaleCheck = Number(lastWhaleCheckRaw ?? "0");
-  if (now - lastWhaleCheck >= 5 * 60 * 1000) {
+  if (now - lastWhaleCheck >= 15 * 60 * 1000) {
     await env.KV.put("kta:last_whale_check", String(now));
     const whale = await detectRecentWhales(env, price, lastCheckTs).catch(() => null);
     if (whale) {

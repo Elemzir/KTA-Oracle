@@ -80,7 +80,7 @@ export async function storeWhaleAlerts(env: Env, alerts: WhaleAlert[]): Promise<
 
 export async function appendPricePoint(env: Env, ring: {p: number; t: number}[], price: number, ts: number): Promise<void> {
   const last = ring[ring.length - 1];
-  if (last && ts - last.t < 10 * 60_000) return;
+  if (last && ts - last.t < 15 * 60_000) return;
   ring.push({ p: price, t: ts });
   if (ring.length > 120) ring.splice(0, ring.length - 120);
   await env.KV.put("kta:price_ring", JSON.stringify(ring), { expirationTtl: 7 * 24 * 3600 });
