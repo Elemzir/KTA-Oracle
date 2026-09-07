@@ -126,7 +126,7 @@ export default {
   async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     try {
     const { pathname, searchParams } = new URL(request.url);
-    const method = request.method;
+    const method = request.method === "HEAD" ? "GET" : request.method;
 
     if (BLOCKED_METHODS.has(method)) return new Response(null, { status: 405 });
     if (BOT_PATHS.has(pathname) || pathname.includes("..") || pathname.startsWith("/."))
