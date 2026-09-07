@@ -63,7 +63,7 @@ export function classifyMove(priceChange: number): "minor" | "normal" | "notable
   return null;
 }
 
-export async function getWhaleAlerts(env: Env, currentPrice = 0.08): Promise<WhaleAlert[]> {
+export async function getWhaleAlerts(env: Env, currentPrice = 0.078): Promise<WhaleAlert[]> {
   let alerts = await env.KV.get<WhaleAlert[]>("kta:whale_alerts", "json");
   if (!alerts || !alerts.length) {
     alerts = await fetchPoolWhaleAlerts(currentPrice);

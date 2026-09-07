@@ -137,7 +137,7 @@ export default {
       return new Response(null, { status: 404 });
 
     if (method === "GET" && pathname === "/")
-      return new Response(renderHome(env.KTA_SOCIAL_URL ?? ""), { headers: { "Content-Type": "text/html; charset=utf-8", "Cache-Control": CC_HTML } });
+      return new Response(renderHome(env.KTA_SOCIAL_URL || "https://kta-oracle.top"), { headers: { "Content-Type": "text/html; charset=utf-8", "Cache-Control": CC_HTML } });
 
     if (method === "GET" && pathname === "/health")
       return Response.json({ status: "ok", service: "kta-oracle", ts: Date.now() });
@@ -187,7 +187,7 @@ export default {
 
     if (method === "GET" && pathname === "/whale/alerts") {
       const wallet  = searchParams.get("wallet") ?? "";
-      const price   = (await env.KV.get<{ price?: number }>("kta:price_cache", "json"))?.price ?? 0.08;
+      const price   = (await env.KV.get<{ price?: number }>("market:cache", "json"))?.price ?? (await readPriceHistory(env)).last ?? 0.078;
       const alerts  = await getWhaleAlerts(env, price);
       if (!wallet) {
         return Response.json({ alerts: alerts.slice(0, 4), preview: true }, { headers: { "Cache-Control": CC_WHALE } });

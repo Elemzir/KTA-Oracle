@@ -3,8 +3,8 @@ import { lib as KeetaNetLib, UserClient } from "@keetanetwork/keetanet-client";
 import type { Env, WhaleAlert } from "./types.js";
 
 const KTA_NATIVE_TOKEN    = "keeta_anqdilpazdekdu4acw65fj7smltcp26wbrildkqtszqvverljpwpezmd44ssg";
-const KTA_NATIVE_ONE      = BigInt("1000000000000000000"); // 1 KTA (18 decimals)
-const KTA_NATIVE_SMALL    = BigInt("1000000000000000");    // 0.001 KTA
+const KTA_NATIVE_ONE      = BigInt("1000000000000000000");
+const KTA_NATIVE_SMALL    = BigInt("1000000000000000");
 const KTA_NATIVE_DECIMALS = 1e18;
 const STABLECOIN_DECIMALS = 1_000_000;
 
@@ -51,38 +51,49 @@ export async function fetchMarketData(): Promise<{
   liquidityUsd: number | null;
 }> {
   try {
-    const sr = await fetch(
-      "https://api.geckoterminal.com/api/v2/search/pools?query=KTA&network=base&page=1",
-      { signal: AbortSignal.timeout(8000), headers: { "Accept": "application/json" } },
-    );
-    if (sr.ok) {
-      const sd = await sr.json() as { data?: GeckoPool[] };
-      const pool = (sd.data ?? [])
-        .filter(p => p.attributes.name?.toUpperCase().includes("KTA") && parseFloat(p.attributes.reserve_in_usd ?? "0") > 100)
-        .sort((a, b) => parseFloat(b.attributes.reserve_in_usd ?? "0") - parseFloat(a.attributes.reserve_in_usd ?? "0"))[0] ?? sd.data?.[0];
-      if (pool) {
-        const liquidityUsd = parseFloat(pool.attributes.reserve_in_usd ?? "0") || null;
-        const volume24h    = parseFloat(pool.attributes.volume_usd?.h24 ?? "0") || null;
-        const price        = parseFloat(pool.attributes.base_token_price_usd ?? "0") || null;
-        const c1h          = pool.attributes.price_change_percentage?.h1 ?? null;
-        const c24h         = pool.attributes.price_change_percentage?.h24 ?? null;
-        if (price && isFinite(price) && price > 0) {
-          let c7d: number | null = null;
-          try {
-            const poolAddress = pool.id.replace(/^[^_]+_/, "");
-            const or = await fetch(
-              `https://api.geckoterminal.com/api/v2/networks/base/pools/${poolAddress}/ohlcv/day?limit=8&currency=usd`,
-              { signal: AbortSignal.timeout(6000), headers: { "Accept": "application/json" } },
-            );
-            if (or.ok) {
-              const od = await or.json() as { data?: { attributes?: { ohlcv_list?: number[][] } } };
-              const list = od.data?.attributes?.ohlcv_list ?? [];
-              const oldest = list.find(c => c[4] > 0);
-              if (oldest && oldest[4] > 0) c7d = ((price - oldest[4]) / oldest[4]) * 100;
-            }
-          } catch {}
-          return { price, c1h, c24h, c7d, volume24h, liquidityUsd };
-        }
+    let pool: GeckoPool | null = null;
+    const directRes = await fetch(
+      "https://api.geckoterminal.com/api/v2/networks/base/pools/0xd9edc75a3a797ec92ca370f19051babebfb2edee",
+      { signal: AbortSignal.timeout(6000), headers: { "Accept": "application/json" } },
+    ).catch(() => null);
+    if (directRes?.ok) {
+      const dd = await directRes.json() as { data?: GeckoPool };
+      if (dd.data?.attributes) pool = dd.data;
+    }
+    if (!pool) {
+      const sr = await fetch(
+        "https://api.geckoterminal.com/api/v2/search/pools?query=KTA&network=base&page=1",
+        { signal: AbortSignal.timeout(8000), headers: { "Accept": "application/json" } },
+      ).catch(() => null);
+      if (sr?.ok) {
+        const sd = await sr.json() as { data?: GeckoPool[] };
+        pool = (sd.data ?? [])
+          .filter(p => p.attributes.name?.toUpperCase().includes("KTA") && parseFloat(p.attributes.reserve_in_usd ?? "0") > 100)
+          .sort((a, b) => parseFloat(b.attributes.reserve_in_usd ?? "0") - parseFloat(a.attributes.reserve_in_usd ?? "0"))[0] ?? sd.data?.[0] ?? null;
+      }
+    }
+    if (pool) {
+      const liquidityUsd = parseFloat(pool.attributes.reserve_in_usd ?? "0") || null;
+      const volume24h    = parseFloat(pool.attributes.volume_usd?.h24 ?? "0") || null;
+      const price        = parseFloat(pool.attributes.base_token_price_usd ?? "0") || null;
+      const c1h          = pool.attributes.price_change_percentage?.h1 ?? null;
+      const c24h         = pool.attributes.price_change_percentage?.h24 ?? null;
+      if (price && isFinite(price) && price > 0) {
+        let c7d: number | null = null;
+        try {
+          const poolAddress = pool.id.replace(/^[^_]+_/, "");
+          const or = await fetch(
+            `https://api.geckoterminal.com/api/v2/networks/base/pools/${poolAddress}/ohlcv/day?limit=8&currency=usd`,
+            { signal: AbortSignal.timeout(6000), headers: { "Accept": "application/json" } },
+          );
+          if (or.ok) {
+            const od = await or.json() as { data?: { attributes?: { ohlcv_list?: number[][] } } };
+            const list = od.data?.attributes?.ohlcv_list ?? [];
+            const oldest = list.find(c => c[4] > 0);
+            if (oldest && oldest[4] > 0) c7d = ((price - oldest[4]) / oldest[4]) * 100;
+          }
+        } catch {}
+        return { price, c1h, c24h, c7d, volume24h, liquidityUsd };
       }
     }
   } catch {}
@@ -131,7 +142,7 @@ export async function fetch7dChange(currentPrice: number): Promise<number | null
 
     const list = od.data?.attributes?.ohlcv_list;
     if (!list || list.length < 2) return null;
-    const price7d = list[0][4]; // oldest candle close
+    const price7d = list[0][4];
     if (!price7d || price7d <= 0) return null;
     return ((currentPrice - price7d) / price7d) * 100;
   } catch {

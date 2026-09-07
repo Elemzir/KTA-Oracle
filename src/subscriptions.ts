@@ -68,7 +68,7 @@ export async function checkAndIncrQuota(
     const count = raw ? parseInt(raw) : 0;
     if (count >= STARTER_CALLS_TOTAL)
       return { allowed: false, remaining: 0, reset: "subscription renewal" };
-    await env.KV.put(key, String(count + 1), { expirationTtl: Math.round(TIER_STARTER_VALIDITY_MS / 1000) + 86400 });
+    await env.KV.put(key, String(count + 1), { expirationTtl: Math.round(TIER_STARTER_VALIDITY_MS / 1000) + 86400 }).catch(() => {});
     return { allowed: true, remaining: STARTER_CALLS_TOTAL - count - 1 };
   }
 
@@ -79,7 +79,7 @@ export async function checkAndIncrQuota(
   const count = raw ? parseInt(raw) : 0;
   if (count >= limit)
     return { allowed: false, remaining: 0, reset: "next calendar month" };
-  await env.KV.put(key, String(count + 1), { expirationTtl: 35 * 86400 });
+  await env.KV.put(key, String(count + 1), { expirationTtl: 35 * 86400 }).catch(() => {});
   return { allowed: true, remaining: limit - count - 1 };
 }
 
