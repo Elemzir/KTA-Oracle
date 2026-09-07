@@ -25,20 +25,19 @@ import {
 
 async function getCachedMarketData(env: Env): Promise<{ price: number | null; c1h: number | null; c24h: number | null; c7d: number | null; volume24h: number | null; liquidityUsd: number | null; fresh: boolean }> {
   const cached = await env.KV.get<{ price: number; c1h: number | null; c24h: number | null; c7d: number | null; volume24h: number | null; liquidityUsd: number | null; ts: number }>("market:cache", "json");
-  if (cached && Date.now() - cached.ts < 900_000) return { ...cached, fresh: false };
+  if (cached && Date.now() - cached.ts < 300_000) return { ...cached, fresh: false };
 
-  let anchorPrice: number | null = null;
-  if (env.KEETA_SEED) {
+  const fetched = await fetchMarketData();
+  let price = (fetched.price && isFinite(fetched.price) && fetched.price > 0) ? fetched.price : null;
+
+  if (!price && env.KEETA_SEED) {
     try {
       const anchorRes = await fetchAnchorPrice(env.KEETA_SEED);
       if (anchorRes?.price && isFinite(anchorRes.price) && anchorRes.price > 0) {
-        anchorPrice = anchorRes.price;
+        price = anchorRes.price;
       }
     } catch {}
   }
-
-  const fetched = await fetchMarketData();
-  const price = anchorPrice ?? fetched.price;
 
   if (price) {
     const data = {

@@ -57,10 +57,9 @@ export async function fetchMarketData(): Promise<{
     );
     if (sr.ok) {
       const sd = await sr.json() as { data?: GeckoPool[] };
-      const pool = (sd.data ?? []).find(p =>
-        p.attributes.name?.toUpperCase().startsWith("KTA") &&
-        parseFloat(p.attributes.reserve_in_usd ?? "0") > 100
-      ) ?? sd.data?.[0];
+      const pool = (sd.data ?? [])
+        .filter(p => p.attributes.name?.toUpperCase().includes("KTA") && parseFloat(p.attributes.reserve_in_usd ?? "0") > 100)
+        .sort((a, b) => parseFloat(b.attributes.reserve_in_usd ?? "0") - parseFloat(a.attributes.reserve_in_usd ?? "0"))[0] ?? sd.data?.[0];
       if (pool) {
         const liquidityUsd = parseFloat(pool.attributes.reserve_in_usd ?? "0") || null;
         const volume24h    = parseFloat(pool.attributes.volume_usd?.h24 ?? "0") || null;
