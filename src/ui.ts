@@ -60,17 +60,17 @@ svg{display:inline-block;vertical-align:middle;flex-shrink:0}
 .pb-live{display:flex;align-items:center;gap:5px;color:var(--muted)}
 .pb-live span{color:var(--accent);font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:0.06em}
 
-.wrap{max-width:1100px;margin:0 auto;padding:0 28px;position:relative;z-index:1}
+.wrap{max-width:1080px;margin:0 auto;padding:0 28px;position:relative;z-index:1}
 .wrap-sm{max-width:720px;margin:0 auto;padding:0 28px;position:relative;z-index:1}
-.wrap-md{max-width:860px;margin:0 auto;padding:0 28px;position:relative;z-index:1}
+.wrap-md{max-width:920px;margin:0 auto;padding:0 28px;position:relative;z-index:1}
 
-.hero{padding:56px 28px 48px;text-align:center;max-width:860px;margin:0 auto;position:relative;z-index:1}
+.hero{padding:72px 28px 56px;text-align:center;max-width:920px;margin:0 auto;position:relative;z-index:1}
 .hero-badge{display:inline-flex;align-items:center;gap:8px;background:var(--gold-dim);border:1px solid var(--gold-border);color:var(--gold);font-size:0.73rem;font-weight:700;padding:5px 14px;border-radius:100px;margin-bottom:28px;letter-spacing:0.05em;text-transform:uppercase}
-.hero h1{font-size:clamp(2.4rem,5.5vw,3.8rem);font-weight:800;letter-spacing:-0.04em;line-height:1.06;margin-bottom:20px}
+.hero h1{font-size:clamp(2.5rem,5.5vw,4rem);font-weight:800;letter-spacing:-0.04em;line-height:1.06;margin-bottom:22px}
 .hero h1 em{font-style:normal;color:var(--gold)}
-.hero-sub{font-size:1.02rem;color:var(--muted2);max-width:540px;margin:0 auto 36px;line-height:1.7}
+.hero-sub{font-size:1.05rem;color:var(--muted2);max-width:600px;margin:0 auto 40px;line-height:1.7}
 
-.btn-row{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:32px}
+.btn-row{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-bottom:36px}
 .btn-primary{display:inline-flex;align-items:center;gap:9px;background:var(--gold);color:#000;font-weight:700;font-size:0.9rem;padding:14px 28px;border-radius:11px;transition:background .15s,transform .12s,box-shadow .15s;white-space:nowrap;box-shadow:0 4px 20px rgba(196,163,90,0.25);touch-action:manipulation}
 .btn-primary:hover{background:var(--gold-light);color:#000;transform:translateY(-2px);box-shadow:0 8px 28px rgba(196,163,90,0.4)}
 .btn-ghost{display:inline-flex;align-items:center;gap:9px;border:1px solid var(--gold-border);color:var(--gold);font-size:0.88rem;padding:13px 24px;border-radius:11px;transition:all .2s;background:rgba(196,163,90,0.04)}
@@ -78,73 +78,73 @@ svg{display:inline-block;vertical-align:middle;flex-shrink:0}
 .btn-accent{display:inline-flex;align-items:center;gap:9px;background:rgba(0,212,170,0.12);border:1px solid rgba(0,212,170,0.3);color:var(--accent);font-size:0.88rem;font-weight:600;padding:13px 24px;border-radius:11px;transition:all .2s}
 .btn-accent:hover{background:rgba(0,212,170,0.2);color:#fff}
 
-.badge-strip{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:0 auto;max-width:860px}
+.badge-strip{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:0 auto;max-width:960px}
 .sbadge{display:inline-flex;align-items:center;background:var(--surface);border:1px solid rgba(255,255,255,0.06);border-radius:8px;overflow:hidden;font-size:0.72rem;box-shadow:0 4px 12px rgba(0,0,0,0.3);transition:border-color .15s,transform .15s}
 .sbadge:hover{border-color:var(--gold-border);transform:translateY(-1px)}
-.sbk{padding:5px 11px;color:var(--muted2);font-weight:500;border-right:1px solid rgba(255,255,255,0.05);white-space:nowrap}
-.sbv{padding:5px 11px;font-weight:700;white-space:nowrap}
+.sbk{padding:6px 12px;color:var(--muted2);font-weight:500;border-right:1px solid rgba(255,255,255,0.05);white-space:nowrap}
+.sbv{padding:6px 12px;font-weight:700;white-space:nowrap}
 .sbv-green{background:var(--accent);color:#000}
 .sbv-gold{background:var(--gold);color:#000}
 .sbv-blue{background:#3B82F6;color:#fff}
 .sbv-teal{background:rgba(0,212,170,0.12);color:var(--accent)}
 .sbv-gray{background:rgba(255,255,255,0.05);color:#aaa}
 
-.lp-wrap{max-width:860px;margin:28px auto 0;background:var(--surface);border:1px solid var(--gold-border);border-radius:var(--radius-lg);padding:32px;text-align:center;box-shadow:0 20px 48px -12px rgba(0,0,0,0.7),0 0 24px -4px rgba(196,163,90,0.15);position:relative;overflow:hidden;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
+.lp-wrap{max-width:960px;margin:40px auto 0;background:var(--surface);border:1px solid var(--gold-border);border-radius:var(--radius-lg);padding:36px;text-align:center;box-shadow:0 20px 48px -12px rgba(0,0,0,0.7),0 0 24px -4px rgba(196,163,90,0.15);position:relative;overflow:hidden;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
 .lp-wrap::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(196,163,90,0.4),transparent)}
-.lp-eyebrow{font-size:0.73rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted2);margin-bottom:12px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px}
-.lp-price{font-size:clamp(2.4rem,4vw,3.2rem);font-weight:800;letter-spacing:-0.04em;font-variant-numeric:tabular-nums;margin-bottom:20px;text-shadow:0 0 24px rgba(196,163,90,0.25)}
-.lp-stats{display:flex;border-top:1px solid rgba(255,255,255,0.06);padding-top:18px}
-.lp-stat{flex:1;text-align:center;border-right:1px solid rgba(255,255,255,0.06);padding:0 8px}
+.lp-eyebrow{font-size:0.73rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted2);margin-bottom:14px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px}
+.lp-price{font-size:clamp(2.6rem,4.5vw,3.5rem);font-weight:800;letter-spacing:-0.04em;font-variant-numeric:tabular-nums;margin-bottom:22px;text-shadow:0 0 24px rgba(196,163,90,0.25)}
+.lp-stats{display:flex;border-top:1px solid rgba(255,255,255,0.06);padding-top:20px}
+.lp-stat{flex:1;text-align:center;border-right:1px solid rgba(255,255,255,0.06);padding:0 12px}
 .lp-stat:last-child{border-right:none}
-.lp-stat-label{font-size:0.71rem;color:var(--muted2);margin-bottom:4px;text-transform:uppercase;letter-spacing:0.05em}
-.lp-stat-val{font-size:0.96rem;font-weight:700;font-variant-numeric:tabular-nums}
+.lp-stat-label{font-size:0.71rem;color:var(--muted2);margin-bottom:5px;text-transform:uppercase;letter-spacing:0.05em}
+.lp-stat-val{font-size:0.98rem;font-weight:700;font-variant-numeric:tabular-nums}
 .up{color:var(--accent)}.down{color:var(--danger)}
 
-.cmp-wrap{max-width:860px;margin:44px auto 0;position:relative;z-index:1}
+.cmp-wrap{max-width:1080px;margin:72px auto 0;position:relative;z-index:1}
 .cmp-card{background:var(--surface);border:1px solid rgba(255,255,255,0.06);border-radius:var(--radius-lg);overflow:hidden;box-shadow:0 18px 44px rgba(0,0,0,0.5);transition:border-color .2s}
 .cmp-card:hover{border-color:var(--gold-border)}
-.cmp-head{display:grid;grid-template-columns:1fr 64px 1fr;background:var(--surface2);border-bottom:1px solid rgba(255,255,255,0.05);padding:12px 24px;align-items:center;text-align:center;gap:8px}
-.cmp-head-label{font-size:0.71rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted2)}
-.cmp-body{display:grid;grid-template-columns:1fr 64px 1fr;padding:32px 24px;align-items:center;text-align:center;gap:8px}
-.cmp-cost{font-size:2.4rem;font-weight:800;letter-spacing:-0.04em;line-height:1}
+.cmp-head{display:grid;grid-template-columns:1fr 64px 1fr;background:var(--surface2);border-bottom:1px solid rgba(255,255,255,0.05);padding:14px 28px;align-items:center;text-align:center;gap:8px}
+.cmp-head-label{font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted2)}
+.cmp-body{display:grid;grid-template-columns:1fr 64px 1fr;padding:36px 28px;align-items:center;text-align:center;gap:8px}
+.cmp-cost{font-size:2.5rem;font-weight:800;letter-spacing:-0.04em;line-height:1}
 .cmp-cost.red{color:#ff5555}
 .cmp-cost.green{color:var(--accent)}
-.cmp-detail{font-size:0.78rem;color:var(--muted2);margin-top:6px}
+.cmp-detail{font-size:0.8rem;color:var(--muted2);margin-top:6px}
 .cmp-detail.hi{color:var(--accent)}
 .cmp-vs{font-size:0.82rem;font-weight:700;color:var(--muted);text-align:center}
-.cmp-note{font-size:0.74rem;text-align:center;color:var(--muted2);padding:12px 24px;border-top:1px solid rgba(255,255,255,0.05);background:var(--surface2);letter-spacing:0.04em}
+.cmp-note{font-size:0.75rem;text-align:center;color:var(--muted2);padding:14px 28px;border-top:1px solid rgba(255,255,255,0.05);background:var(--surface2);letter-spacing:0.04em}
 
-.why-wrap{max-width:860px;margin:44px auto 0;position:relative;z-index:1}
-.why-title{font-size:1.25rem;font-weight:800;letter-spacing:-0.025em;margin-bottom:16px;text-align:center}
+.why-wrap{max-width:1080px;margin:72px auto 0;position:relative;z-index:1}
+.why-title{font-size:1.35rem;font-weight:800;letter-spacing:-0.025em;margin-bottom:20px;text-align:center}
 .why-title em{font-style:normal;color:var(--gold)}
 .why-table{background:var(--surface);border:1px solid rgba(255,255,255,0.06);border-radius:var(--radius-lg);overflow:hidden;box-shadow:0 18px 40px rgba(0,0,0,0.5)}
-.wt-head{display:grid;grid-template-columns:1fr 160px 140px;padding:12px 20px;background:var(--surface2);border-bottom:1px solid rgba(255,255,255,0.05);font-size:0.73rem;font-weight:700;letter-spacing:0.05em;text-transform:uppercase}
-.wt-row{display:grid;grid-template-columns:1fr 160px 140px;padding:12px 20px;border-bottom:1px solid rgba(255,255,255,0.03);font-size:0.83rem;align-items:center;transition:background .15s}
+.wt-head{display:grid;grid-template-columns:1fr 180px 160px;padding:14px 24px;background:var(--surface2);border-bottom:1px solid rgba(255,255,255,0.05);font-size:0.73rem;font-weight:700;letter-spacing:0.05em;text-transform:uppercase}
+.wt-row{display:grid;grid-template-columns:1fr 180px 160px;padding:14px 24px;border-bottom:1px solid rgba(255,255,255,0.03);font-size:0.85rem;align-items:center;transition:background .15s}
 .wt-row:last-child{border-bottom:none}
 .wt-row:hover{background:rgba(255,255,255,0.02)}
 .wt-feat{color:#ccc}
-.wt-col{text-align:center;font-size:0.83rem}
+.wt-col{text-align:center;font-size:0.85rem}
 .wt-col.muted{color:var(--muted2)}
 .wt-col.gold{color:var(--gold);font-weight:700}
-.wt-col.bold{font-size:1rem;font-weight:800}
-.wt-check{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:5px;background:rgba(0,212,170,0.15);color:var(--accent);font-size:0.85rem;font-weight:700}
-.wt-x{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:5px;background:rgba(255,77,77,0.1);color:#ff5555;font-size:0.85rem;font-weight:700}
+.wt-col.bold{font-size:1.02rem;font-weight:800}
+.wt-check{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:6px;background:rgba(0,212,170,0.15);color:var(--accent);font-size:0.88rem;font-weight:700}
+.wt-x{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:6px;background:rgba(255,77,77,0.1);color:#ff5555;font-size:0.88rem;font-weight:700}
 
-.nav-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;max-width:860px;margin:44px auto 0;position:relative;z-index:1}
+.nav-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;max-width:1080px;margin:72px auto 0;position:relative;z-index:1}
 @media(max-width:768px){.nav-grid{grid-template-columns:1fr 1fr}}
-.ngi{background:var(--surface);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:14px 16px;display:flex;align-items:center;gap:12px;text-decoration:none;transition:border-color .2s,background .15s,transform .15s;box-shadow:0 8px 24px rgba(0,0,0,0.3)}
+.ngi{background:var(--surface);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:16px 18px;display:flex;align-items:center;gap:12px;text-decoration:none;transition:border-color .2s,background .15s,transform .15s;box-shadow:0 8px 24px rgba(0,0,0,0.3)}
 .ngi:hover{border-color:var(--gold-border);background:var(--surface2);transform:translateY(-2px)}
-.ngi-ico{width:32px;height:32px;border-radius:8px;background:rgba(196,163,90,0.08);border:1px solid rgba(196,163,90,0.18);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:0.95rem;color:var(--gold)}
+.ngi-ico{width:34px;height:34px;border-radius:8px;background:rgba(196,163,90,0.08);border:1px solid rgba(196,163,90,0.18);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:0.95rem;color:var(--gold)}
 .ngi-ico.g{background:rgba(0,212,170,0.08);border-color:rgba(0,212,170,0.2);color:var(--accent)}
-.ngi span{font-size:0.82rem;font-weight:600;color:#ccc}
+.ngi span{font-size:0.84rem;font-weight:600;color:#ccc}
 .ngi:hover span{color:#fff}
 
-.tools-cta{max-width:860px;margin:44px auto 0;position:relative;z-index:1}
-.tools-cta-inner{background:var(--surface);border:1px solid var(--gold-border);border-radius:var(--radius-lg);padding:32px 36px;display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap;box-shadow:0 18px 44px rgba(0,0,0,0.5);position:relative;overflow:hidden}
+.tools-cta{max-width:1080px;margin:72px auto 0;position:relative;z-index:1}
+.tools-cta-inner{background:var(--surface);border:1px solid var(--gold-border);border-radius:var(--radius-lg);padding:36px 42px;display:flex;align-items:center;justify-content:space-between;gap:28px;flex-wrap:wrap;box-shadow:0 18px 44px rgba(0,0,0,0.5);position:relative;overflow:hidden}
 .tools-cta-inner::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(196,163,90,0.4),transparent)}
-.tools-cta-text h3{font-size:1.18rem;font-weight:800;letter-spacing:-0.02em;margin-bottom:8px}
-.tools-cta-text p{font-size:0.84rem;color:var(--muted2);max-width:440px;line-height:1.65}
-.tools-cta-badges{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.tools-cta-text h3{font-size:1.25rem;font-weight:800;letter-spacing:-0.02em;margin-bottom:8px}
+.tools-cta-text p{font-size:0.86rem;color:var(--muted2);max-width:540px;line-height:1.65}
+.tools-cta-badges{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
 .tbadge{font-size:0.7rem;font-weight:700;padding:3px 10px;border-radius:5px;letter-spacing:0.04em;text-transform:uppercase}
 .tbadge.free{background:rgba(255,255,255,0.06);color:var(--muted2);border:1px solid rgba(255,255,255,0.1)}
 .tbadge.starter{background:var(--gold-dim);color:var(--gold);border:1px solid var(--gold-border)}
@@ -153,24 +153,24 @@ svg{display:inline-block;vertical-align:middle;flex-shrink:0}
 .btn-tools{background:var(--gold);color:#000;font-weight:800;font-size:0.88rem;padding:14px 28px;border-radius:10px;white-space:nowrap;transition:background .15s,transform .1s,box-shadow .15s;display:inline-block;box-shadow:0 4px 18px rgba(196,163,90,0.25)}
 .btn-tools:hover{background:var(--gold-light);color:#000;transform:translateY(-1px);box-shadow:0 8px 24px rgba(196,163,90,0.4)}
 
-.section{max-width:860px;margin:0 auto;padding:64px 0 0;position:relative;z-index:1}
-.sec-title{font-size:1.35rem;font-weight:800;letter-spacing:-0.025em;margin-bottom:6px}
+.section{max-width:1080px;margin:0 auto;padding:72px 0 0;position:relative;z-index:1}
+.sec-title{font-size:1.45rem;font-weight:800;letter-spacing:-0.025em;margin-bottom:8px}
 .sec-title span{color:var(--gold)}
-.sec-sub{font-size:0.85rem;color:var(--muted2);margin-bottom:28px}
+.sec-sub{font-size:0.88rem;color:var(--muted2);margin-bottom:32px}
 
-.ep-list{display:flex;flex-direction:column;gap:10px}
-.ep{background:var(--surface);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:16px 20px;display:flex;align-items:flex-start;gap:14px;transition:border-color .2s,background .2s}
+.ep-list{display:flex;flex-direction:column;gap:12px}
+.ep{background:var(--surface);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:18px 22px;display:flex;align-items:flex-start;gap:16px;transition:border-color .2s,background .2s}
 .ep:hover{border-color:var(--gold-border);background:var(--surface2)}
 .ep-method{font-size:0.68rem;font-weight:700;padding:3px 8px;border-radius:4px;letter-spacing:0.06em;white-space:nowrap;flex-shrink:0;margin-top:3px}
 .m-get{background:rgba(0,212,170,0.1);color:var(--accent);border:1px solid rgba(0,212,170,0.22)}
-.ep-path{font-family:'SF Mono','Fira Mono','Menlo',monospace;font-size:0.84rem;color:#fff;margin-bottom:4px;font-weight:600}
-.ep-desc{font-size:0.79rem;color:var(--muted2);line-height:1.55}
+.ep-path{font-family:'SF Mono','Fira Mono','Menlo',monospace;font-size:0.86rem;color:#fff;margin-bottom:4px;font-weight:600}
+.ep-desc{font-size:0.81rem;color:var(--muted2);line-height:1.55}
 .ep-try{margin-top:8px}
 .ep-try a{font-size:0.73rem;color:var(--gold);border:1px solid var(--gold-border);padding:3px 10px;border-radius:5px;transition:background .15s,color .15s}
 .ep-try a:hover{background:var(--gold-dim);color:#fff}
 
-.tool-card{background:var(--surface);border:1px solid var(--gold-border);border-radius:var(--radius-lg);padding:26px;box-shadow:0 16px 40px -10px rgba(0,0,0,0.6)}
-.field{margin-bottom:15px}
+.tool-card{background:var(--surface);border:1px solid var(--gold-border);border-radius:var(--radius-lg);padding:28px;box-shadow:0 16px 40px -10px rgba(0,0,0,0.6)}
+.field{margin-bottom:16px}
 .field label{display:block;font-size:0.71rem;color:var(--muted2);margin-bottom:6px;font-weight:600;letter-spacing:0.07em;text-transform:uppercase}
 .field select{width:100%;background:var(--surface2) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpolyline points='1 1 6 7 11 1' stroke='%23888' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 12px center;background-size:12px 8px;border:1px solid #1a1a1a;border-radius:9px;color:#fff;padding:11px 36px 11px 14px;font-size:0.86rem;outline:none;font-family:inherit;appearance:none;-webkit-appearance:none;cursor:pointer;transition:border-color .15s;min-height:44px}
 .field select:focus{border-color:var(--gold-border)}
@@ -182,16 +182,16 @@ svg{display:inline-block;vertical-align:middle;flex-shrink:0}
 .json-out{display:none;margin-top:12px;background:var(--surface2);border:1px solid rgba(255,255,255,0.06);border-radius:9px;padding:14px;font-family:'SF Mono','Fira Mono','Menlo',monospace;font-size:0.77rem;color:#aaa;overflow-x:auto;white-space:pre;max-height:240px;overflow-y:auto}
 .json-out.visible{display:block}
 
-.donate-cta{max-width:860px;margin:44px auto 0;position:relative;z-index:1}
-.donate-cta-inner{background:linear-gradient(135deg,rgba(196,163,90,0.08) 0%,rgba(12,12,14,0.95) 60%);border:1px solid var(--gold-border);border-radius:var(--radius-lg);padding:40px 32px;text-align:center;box-shadow:0 18px 48px rgba(0,0,0,0.6)}
-.donate-cta-inner h3{font-size:1.25rem;font-weight:800;letter-spacing:-0.025em;margin-bottom:10px}
-.donate-cta-inner p{font-size:0.88rem;color:var(--muted2);max-width:480px;margin:0 auto 24px;line-height:1.7}
+.donate-cta{max-width:1080px;margin:72px auto 0;position:relative;z-index:1}
+.donate-cta-inner{background:linear-gradient(135deg,rgba(196,163,90,0.08) 0%,rgba(12,12,14,0.95) 60%);border:1px solid var(--gold-border);border-radius:var(--radius-lg);padding:44px 36px;text-align:center;box-shadow:0 18px 48px rgba(0,0,0,0.6)}
+.donate-cta-inner h3{font-size:1.3rem;font-weight:800;letter-spacing:-0.025em;margin-bottom:12px}
+.donate-cta-inner p{font-size:0.9rem;color:var(--muted2);max-width:520px;margin:0 auto 26px;line-height:1.7}
 .btn-donate{display:inline-flex;align-items:center;gap:9px;background:var(--gold);color:#000;font-weight:800;font-size:0.9rem;padding:14px 34px;border-radius:100px;transition:background .15s,box-shadow .2s,transform .15s;box-shadow:0 0 24px rgba(196,163,90,0.28)}
 .btn-donate:hover{background:var(--gold-light);color:#000;transform:translateY(-2px);box-shadow:0 0 36px rgba(196,163,90,0.5)}
 .donate-note{margin-top:14px;font-size:0.75rem;color:var(--muted2)}
 
-.footer{border-top:1px solid rgba(255,255,255,0.05);padding:36px 28px;text-align:center;color:var(--muted);font-size:0.76rem;position:relative;z-index:1;margin-top:72px}
-.footer-links{display:flex;justify-content:center;gap:28px;margin-bottom:12px;flex-wrap:wrap}
+.footer{border-top:1px solid rgba(255,255,255,0.05);padding:40px 28px;text-align:center;color:var(--muted);font-size:0.76rem;position:relative;z-index:1;margin-top:80px}
+.footer-links{display:flex;justify-content:center;gap:28px;margin-bottom:14px;flex-wrap:wrap}
 .footer-links a{color:var(--muted2);transition:color .15s}
 .footer-links a:hover{color:var(--gold)}
 .footer-brand{color:var(--muted);display:flex;align-items:center;justify-content:center;gap:8px}
@@ -277,7 +277,7 @@ svg{display:inline-block;vertical-align:middle;flex-shrink:0}
 }
 @media(max-width:640px){
   .wrap,.wrap-sm,.wrap-md{padding:0 16px}
-  .hero{padding:40px 16px 32px}
+  .hero{padding:44px 16px 36px}
   .hdr-inner{padding:0 16px}
   .pbar{padding:0 12px;gap:12px;font-size:0.71rem;height:32px}
   .pbar .pb-item:nth-child(5){display:none}
@@ -296,11 +296,11 @@ svg{display:inline-block;vertical-align:middle;flex-shrink:0}
   .lp-stat:last-child{border-bottom:none}
   .tools-cta-inner{flex-direction:column;text-align:center}
   .tools-cta-text p{max-width:100%}
-  .section{padding:48px 0 0}
+  .section{padding:56px 0 0}
   .ep{padding:14px 16px;flex-direction:column;gap:8px}
   .ep-method{align-self:flex-start}
   .field select,.tool-btn{font-size:0.9rem}
-  .donate-cta-inner{padding:28px 16px}
+  .donate-cta-inner{padding:32px 18px}
   .btn-donate{width:100%;justify-content:center}
   .wt-head,.wt-row{grid-template-columns:1fr 80px 80px;padding:10px 12px}
   .wt-feat{font-size:0.76rem}
@@ -322,12 +322,12 @@ export function renderHome(socialUrl: string): string {
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>KTA Oracle — Intelligence Engine</title>
-<meta name="description" content="KTA Oracle — real-time price intelligence, FX rates, whale detection and on-chain analytics. Powered by Keeta Network.">
+<title>KTA Oracle - Intelligence Engine</title>
+<meta name="description" content="KTA Oracle - real-time price intelligence, FX rates, whale detection and on-chain analytics. Powered by Keeta Network.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="${base || "https://kta-oracle.top"}/oracle">
-<meta property="og:title" content="KTA Oracle — Intelligence Engine">
-<meta property="og:description" content="Real-time price data, FX rates, whale detection, and on-chain analytics — running natively on Keeta Network.">
+<meta property="og:title" content="KTA Oracle - Intelligence Engine">
+<meta property="og:description" content="Real-time price data, FX rates, whale detection, and on-chain analytics - running natively on Keeta Network.">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <style>${CSS}</style>
 </head>
@@ -364,10 +364,10 @@ export function renderHome(socialUrl: string): string {
 
 <div class="pbar" id="pbar">
   <div class="pb-item pb-live"><span class="live-dot"></span><span>LIVE</span></div>
-  <div class="pb-item"><span class="pb-label">KTA/USD</span>&nbsp;<span class="pb-val" id="pb-price">—</span></div>
-  <div class="pb-item"><span class="pb-label">1h</span>&nbsp;<span class="pb-val" id="pb-1h">—</span></div>
-  <div class="pb-item"><span class="pb-label">24h</span>&nbsp;<span class="pb-val" id="pb-24h">—</span></div>
-  <div class="pb-item"><span class="pb-label">7d</span>&nbsp;<span class="pb-val" id="pb-7d">—</span></div>
+  <div class="pb-item"><span class="pb-label">KTA/USD</span>&nbsp;<span class="pb-val" id="pb-price">-</span></div>
+  <div class="pb-item"><span class="pb-label">1h</span>&nbsp;<span class="pb-val" id="pb-1h">-</span></div>
+  <div class="pb-item"><span class="pb-label">24h</span>&nbsp;<span class="pb-val" id="pb-24h">-</span></div>
+  <div class="pb-item"><span class="pb-label">7d</span>&nbsp;<span class="pb-val" id="pb-7d">-</span></div>
   <div class="pb-item"><span class="pb-label">Network</span>&nbsp;<span class="pb-val" style="color:var(--accent)">Keeta Mainnet</span></div>
 </div>
 
@@ -386,7 +386,7 @@ export function renderHome(socialUrl: string): string {
 <section class="hero wrap">
   <div class="hero-badge"><span class="live-dot"></span>Live · Keeta Network · 0.4s settlement</div>
   <h1>KTA <em>Oracle</em><br>Intelligence Engine</h1>
-  <p class="hero-sub">Real-time price data, FX rates, whale detection, and on-chain analytics — running natively on Keeta Network.</p>
+  <p class="hero-sub">Real-time price data, FX rates, whale detection, and on-chain analytics - running natively on Keeta Network.</p>
 
   <div class="btn-row">
     ${base ? `<a href="${base}/onboard" class="btn-primary">Get started →</a>` : ''}
@@ -405,12 +405,12 @@ export function renderHome(socialUrl: string): string {
   </div>
 
   <div class="lp-wrap">
-    <div class="lp-eyebrow"><span class="live-dot"></span>KTA / USD — Live Native Feeds</div>
-    <div class="lp-price" id="lp-price">—</div>
+    <div class="lp-eyebrow"><span class="live-dot"></span>KTA / USD - Live Native Feeds</div>
+    <div class="lp-price" id="lp-price">-</div>
     <div class="lp-stats">
-      <div class="lp-stat"><div class="lp-stat-label">1h change</div><div class="lp-stat-val" id="lp-1h">—</div></div>
-      <div class="lp-stat"><div class="lp-stat-label">24h change</div><div class="lp-stat-val" id="lp-24h">—</div></div>
-      <div class="lp-stat"><div class="lp-stat-label">7d change</div><div class="lp-stat-val" id="lp-7d">—</div></div>
+      <div class="lp-stat"><div class="lp-stat-label">1h change</div><div class="lp-stat-val" id="lp-1h">-</div></div>
+      <div class="lp-stat"><div class="lp-stat-label">24h change</div><div class="lp-stat-val" id="lp-24h">-</div></div>
+      <div class="lp-stat"><div class="lp-stat-label">7d change</div><div class="lp-stat-val" id="lp-7d">-</div></div>
     </div>
   </div>
 </section>
@@ -418,14 +418,14 @@ export function renderHome(socialUrl: string): string {
 <div class="cmp-wrap wrap">
   <div class="cmp-card">
     <div class="cmp-head">
-      <div class="cmp-head-label">SWIFT wire — $50,000</div>
+      <div class="cmp-head-label">SWIFT wire - $50,000</div>
       <div></div>
-      <div class="cmp-head-label">Keeta Network — $50,000</div>
+      <div class="cmp-head-label">Keeta Network - $50,000</div>
     </div>
     <div class="cmp-body">
       <div>
         <div class="cmp-cost red">~$1,050</div>
-        <div class="cmp-detail">3–5 business days</div>
+        <div class="cmp-detail">3-5 business days</div>
       </div>
       <div class="cmp-vs">vs</div>
       <div>
@@ -447,7 +447,7 @@ export function renderHome(socialUrl: string): string {
     </div>
     <div class="wt-row">
       <div class="wt-feat">Tools available</div>
-      <div class="wt-col muted">1–5</div>
+      <div class="wt-col muted">1-5</div>
       <div class="wt-col gold bold">19</div>
     </div>
     <div class="wt-row">
@@ -502,7 +502,7 @@ export function renderHome(socialUrl: string): string {
 <div class="tools-cta wrap" id="sdk-tools">
   <div class="tools-cta-inner">
     <div class="tools-cta-text">
-      <h3>19 SDK tools — all active</h3>
+      <h3>19 SDK tools - all active</h3>
       <p>From live price queries to on-chain certificate operations, wallet scoring, and compliance checks. Each tool is built directly on the Keeta Network SDK and available across all tiers.</p>
       <div class="tools-cta-badges">
         <span class="tbadge free">Free</span>
@@ -517,46 +517,38 @@ export function renderHome(socialUrl: string): string {
 
 <section class="section wrap" id="endpoints">
   <div class="sec-title">Public <span>endpoints</span></div>
-  <div class="sec-sub">All endpoints return JSON. Verify your wallet in the Try it section below to test live.</div>
-  <div style="position:relative">
-    <div id="endpoints-lock" style="position:absolute;inset:0;z-index:10;background:rgba(3,3,3,0.72);backdrop-filter:blur(5px);border-radius:12px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(196,163,90,0.7)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-      <div style="font-size:0.8rem;color:rgba(196,163,90,0.85);font-weight:600">Verify wallet in Try it below to unlock</div>
+  <div class="sec-sub">All endpoints return JSON directly from Keeta Network. Try any endpoint live below.</div>
+  <div class="ep-list">
+    <div class="ep">
+      <span class="ep-method m-get">GET</span>
+      <div>
+        <div class="ep-path">/price</div>
+        <div class="ep-desc">Current KTA/USD price with 1h, 24h, and 7d change percentages. Sourced natively from Keeta Network.</div>
+        <div class="ep-try"><a href="/price" target="_blank" rel="noopener">Try live →</a></div>
+      </div>
     </div>
-    <div id="endpoints-grid" style="opacity:0.25;pointer-events:none;transition:opacity .3s">
-      <div class="ep-list">
-        <div class="ep">
-          <span class="ep-method m-get">GET</span>
-          <div>
-            <div class="ep-path">/price</div>
-            <div class="ep-desc">Current KTA/USD price with 1h, 24h, and 7d change percentages. Sourced natively from Keeta Network.</div>
-            <div class="ep-try"><a href="/price" target="_blank" rel="noopener">Try live →</a></div>
-          </div>
-        </div>
-        <div class="ep">
-          <span class="ep-method m-get">GET</span>
-          <div>
-            <div class="ep-path">/rate?currency=EUR</div>
-            <div class="ep-desc">KTA exchange rate for a given currency. Supported: USD, EUR, GBP, SEK, NOK, JPY, AED, SGD.</div>
-            <div class="ep-try"><a href="/rate?currency=EUR" target="_blank" rel="noopener">Try live →</a></div>
-          </div>
-        </div>
-        <div class="ep">
-          <span class="ep-method m-get">GET</span>
-          <div>
-            <div class="ep-path">/whale/alerts</div>
-            <div class="ep-desc">Recent large on-chain KTA movements, classified as whale, institutional, or mega-whale.</div>
-            <div class="ep-try"><a href="/whale/alerts" target="_blank" rel="noopener">Try live →</a></div>
-          </div>
-        </div>
-        <div class="ep">
-          <span class="ep-method m-get">GET</span>
-          <div>
-            <div class="ep-path">/subscription?wallet=</div>
-            <div class="ep-desc">Returns tier, expiry, and social lifetime status for a given wallet address.</div>
-            <div class="ep-try"><a href="/subscription?wallet=" target="_blank" rel="noopener">Try live →</a></div>
-          </div>
-        </div>
+    <div class="ep">
+      <span class="ep-method m-get">GET</span>
+      <div>
+        <div class="ep-path">/rate?currency=EUR</div>
+        <div class="ep-desc">KTA exchange rate for a given currency. Supported: USD, EUR, GBP, SEK, NOK, JPY, AED, SGD.</div>
+        <div class="ep-try"><a href="/rate?currency=EUR" target="_blank" rel="noopener">Try live →</a></div>
+      </div>
+    </div>
+    <div class="ep">
+      <span class="ep-method m-get">GET</span>
+      <div>
+        <div class="ep-path">/whale/alerts</div>
+        <div class="ep-desc">Recent large on-chain KTA movements, classified as whale (100,000+ KTA), institutional, or mega-whale.</div>
+        <div class="ep-try"><a href="/whale/alerts" target="_blank" rel="noopener">Try live →</a></div>
+      </div>
+    </div>
+    <div class="ep">
+      <span class="ep-method m-get">GET</span>
+      <div>
+        <div class="ep-path">/subscription?wallet=</div>
+        <div class="ep-desc">Returns tier, expiry, and social lifetime status for a given wallet address.</div>
+        <div class="ep-try"><a href="/subscription?wallet=" target="_blank" rel="noopener">Try live →</a></div>
       </div>
     </div>
   </div>
@@ -564,9 +556,9 @@ export function renderHome(socialUrl: string): string {
 
 <section class="section wrap" id="tools" style="padding-bottom:0">
   <div class="sec-title">Try the <span>oracle</span></div>
-  <div class="sec-sub">Active wallet required — Free tier (0.1 KTA) or above</div>
+  <div class="sec-sub">Active wallet required - Free tier (0.1 KTA) or above</div>
 
-  <div class="tool-card" style="max-width:600px;margin:0 auto 24px">
+  <div class="tool-card" style="max-width:640px;margin:0 auto 28px">
     <div style="font-size:0.92rem;font-weight:700;color:#fff;margin-bottom:10px">Verify your wallet</div>
     <div style="font-size:0.79rem;color:var(--muted2);margin-bottom:14px">Enter your registered <code style="color:var(--gold);font-size:0.78rem">keeta_</code> wallet to unlock the live tools below. Free tier (0.1 KTA) is the minimum.</div>
     <div style="display:flex;gap:8px">
@@ -630,7 +622,7 @@ export function renderHome(socialUrl: string): string {
 <div class="agent-panel" id="agent-panel">
   <div class="ap-sheet-handle" onclick="toggleAgent()"></div>
   <div class="ap-head">
-    <div class="ap-head-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
+    <div class="ap-head-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10"/></svg></div>
     <div class="ap-head-info">
       <div class="ap-head-name" id="ap-head-name">Support Agent</div>
       <div class="ap-head-status">● Online · 0.4s response</div>
@@ -699,7 +691,7 @@ export function renderHome(socialUrl: string): string {
     }
   });
 
-  function fmt(n){return n==null?'—':(n>=0?'+':'')+Number(n).toFixed(2)+'%';}
+  function fmt(n){return n==null?'-':(n>=0?'+':'')+Number(n).toFixed(2)+'%';}
   function cls(n){return n==null?'':(n>=0?' up':' down');}
 
   async function loadPrice(){
@@ -856,15 +848,11 @@ async function verifyWallet(){
       _activeTier=t;
       document.getElementById('whale-wallet').value=wallet;
       document.getElementById('tools-lock').style.display='none';
-      document.getElementById('endpoints-lock').style.display='none';
       var grid=document.getElementById('tools-grid');
       grid.style.opacity='1';
       grid.style.pointerEvents='auto';
-      var epGrid=document.getElementById('endpoints-grid');
-      epGrid.style.opacity='1';
-      epGrid.style.pointerEvents='auto';
       status.className='tool-result ok';
-      status.textContent='✓ Active — '+t+' tier. Tools unlocked.';
+      status.textContent='✓ Active - '+t+' tier. Tools unlocked.';
     } else {
       status.className='tool-result err';
       status.textContent='Wallet not activated. Send 0.1 KTA and activate at /onboard first.';
@@ -883,7 +871,7 @@ async function fetchWhales(){
   note.textContent='';
   var t=_activeTier||'free';
   var limit=(t==='business'||t==='pro'||t==='social')?9999:(t==='starter'?3:1);
-  var tierLabel=(t==='business'||t==='pro'||t==='social')?(t+' — unlimited'):(t==='starter'?'starter — up to 3':'free — 1 alert');
+  var tierLabel=(t==='business'||t==='pro'||t==='social')?(t+' - unlimited'):(t==='starter'?'starter - up to 3':'free - 1 alert');
   try{
     var r=await fetch('/whale/alerts');
     if(!r.ok){out.textContent='Service unavailable.';return;}
@@ -891,10 +879,10 @@ async function fetchWhales(){
     var all=d.alerts||[];
     var shown=all.slice(0,limit);
     note.className='tool-result ok';
-    note.textContent='Tier: '+tierLabel+(all.length?'  ·  showing '+shown.length+' of '+all.length:'');
+    note.textContent='Tier: '+tierLabel+(all.length?' · showing '+shown.length+' of '+all.length:'');
     if(!shown.length){out.textContent='No whale activity detected yet.';}
     else{out.textContent=JSON.stringify(shown,null,2);}
-  }catch(e){out.textContent='Network error — try again.';}
+  }catch(e){out.textContent='Network error - try again.';}
 }
 
 function quickAsk(q){

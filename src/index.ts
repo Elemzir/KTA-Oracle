@@ -231,11 +231,11 @@ export default {
         tier: "unregistered",
         oracle_wallet: oracle,
         tiers: {
-          free:     `${TIER_REGISTRATION} KTA — ${FREE_CALLS_PER_DAY} calls/day, 5 days`,
-          starter:  `${TIER_STARTER} KTA — 60 calls / 30 days`,
-          social:   `${TIER_SOCIAL} KTA — Starter + Social Agent lifetime`,
-          pro:      `${TIER_PRO} KTA — Pro tools, 30 days + Social lifetime`,
-          business: `${TIER_BUSINESS} KTA — all tools + priority, 30 days + Social lifetime`,
+          free:     `${TIER_REGISTRATION} KTA - ${FREE_CALLS_PER_DAY} calls/day, 5 days`,
+          starter:  `${TIER_STARTER} KTA - 60 calls / 30 days`,
+          social:   `${TIER_SOCIAL} KTA - Starter + Social Agent lifetime`,
+          pro:      `${TIER_PRO} KTA - Pro tools, 30 days + Social lifetime`,
+          business: `${TIER_BUSINESS} KTA - all tools + priority, 30 days + Social lifetime`,
         },
       });
       return Response.json({

@@ -1,12 +1,12 @@
-# KTA Oracle — The Most Capable Keeta Network Oracle
+# KTA Oracle - The Most Capable Keeta Network Oracle
 
 > **19 tools · 5 tiers · 0.4s finality · 100% on-chain · No API key**
 
-Real-time KTA price intelligence, on-chain analytics, whale detection, compliance screening, wallet scoring, identity resolution, and the full Keeta Network SDK surface — served as a tiered REST API from Cloudflare's global edge. The only oracle that combines live price data, AI-powered market insights, and production Keeta SDK tooling in a single deployment.
+Real-time KTA price intelligence, on-chain analytics, whale detection, compliance screening, wallet scoring, identity resolution, and the full Keeta Network SDK surface - served as a tiered REST API from Cloudflare's global edge. The only oracle that combines live price data, AI-powered market insights, and production Keeta SDK tooling in a single deployment.
 
 **No API key. No email. No KYC. Your Keeta wallet address is the only identity.**
 
-Payments are fully on-chain. Tier activation scans on-chain history in under 2 seconds. Every KTA sent from the same wallet accumulates — you're already on the ladder at 0.1 KTA.
+Payments are fully on-chain. Tier activation scans on-chain history in under 2 seconds. Every KTA sent from the same wallet accumulates - you're already on the ladder at 0.1 KTA.
 
 → **[kta-oracle.top](https://kta-oracle.top)** · [Tools catalog](https://kta-oracle.top/tools) · [Machine-readable spec](https://kta-oracle.top/llms.txt) · [Companion: KTA-Social](https://github.com/Elemzir/KTA-Social)
 
@@ -16,15 +16,15 @@ Payments are fully on-chain. Tier activation scans on-chain history in under 2 s
 
 | | |
 |---|---|
-| Tools | **19** — free through business tier |
-| Tiers | 5 — Free, Starter, Social, Pro, Business |
-| Settlement | **0.4 seconds** — Keeta Network native finality |
-| Edge latency | **<5ms** — served from Cloudflare KV globally |
-| Price freshness | **5 minutes** — cron-driven, never stale |
+| Tools | **19** - free through business tier |
+| Tiers | 5 - Free, Starter, Social, Pro, Business |
+| Settlement | **0.4 seconds** - Keeta Network native finality |
+| Edge latency | **<5ms** - served from Cloudflare KV globally |
+| Price freshness | **5 minutes** - cron-driven, never stale |
 | Platforms | Discord · Telegram · Slack · X/Twitter |
-| Auth | Keeta wallet address — no API key, no KYC |
-| AI insights | On every price alert — payment-network focused |
-| Source | 100% open source — MIT licensed |
+| Auth | Keeta wallet address - no API key, no KYC |
+| AI insights | On every price alert - payment-network focused |
+| Source | 100% open source - MIT licensed |
 
 ---
 
@@ -54,7 +54,7 @@ Payments are fully on-chain. Tier activation scans on-chain history in under 2 s
 
 ## Subscription Tiers
 
-Payments accumulate on-chain — multiple sends from the same wallet stack toward the highest tier.
+Payments accumulate on-chain - multiple sends from the same wallet stack toward the highest tier.
 
 | KTA sent | Tier | Tools | Oracle calls | Social alerts | Whale alerts | Duration |
 |----------|------|-------|--------------|---------------|--------------|----------|
@@ -70,12 +70,12 @@ Send KTA to the oracle wallet address (set in `wrangler.toml` as `ORACLE_WALLET`
 
 Each tier has a natural ceiling. Users typically upgrade when they hit one of these:
 
-- **Free → Starter**: Free tier lasts 5 days. Whale feed is locked and only 1 whale alert ever fires. Sending 10 KTA total extends access to 30 days, unlocks the live whale feed on `/onboard`, adds 3 whale alerts/month, and triples the API quota. Already sent 0.1? Only 9.9 more needed — sends accumulate.
-- **Starter → Social**: Starter alerts expire after 30 days and still count against the 100-alert trial cap. Social (50 KTA total) is where alerts become permanent — social platform alerts never expire even if Oracle access lapses. One on-chain send, lifetime delivery.
-- **Social → Pro**: Users who need compliance tools, wallet scoring, transaction history, or on-chain analytics outgrow Social. Pro (300 KTA total) adds the full analytics suite — built for operators, teams, and builders.
-- **Pro → Business**: Business (600 KTA total) removes all limits — all 19 SDK tools, unlimited API calls, priority processing. Designed for institutions and teams running automated KTA workflows.
+- **Free → Starter**: Free tier lasts 5 days. Whale feed is locked and only 1 whale alert ever fires. Sending 10 KTA total extends access to 30 days, unlocks the live whale feed on `/onboard`, adds 3 whale alerts/month, and triples the API quota. Already sent 0.1? Only 9.9 more needed - sends accumulate.
+- **Starter → Social**: Starter alerts expire after 30 days and still count against the 100-alert trial cap. Social (50 KTA total) is where alerts become permanent - social platform alerts never expire even if Oracle access lapses. One on-chain send, lifetime delivery.
+- **Social → Pro**: Users who need compliance tools, wallet scoring, transaction history, or on-chain analytics outgrow Social. Pro (300 KTA total) adds the full analytics suite - built for operators, teams, and builders.
+- **Pro → Business**: Business (600 KTA total) removes all limits - all 19 SDK tools, unlimited API calls, priority processing. Designed for institutions and teams running automated KTA workflows.
 
-**Accumulation is the key mechanic**: all sends from the same wallet stack toward the highest tier. A user who sent 0.1 KTA is already on the ladder — every subsequent send moves them up without starting over.
+**Accumulation is the key mechanic**: all sends from the same wallet stack toward the highest tier. A user who sent 0.1 KTA is already on the ladder - every subsequent send moves them up without starting over.
 
 ---
 
@@ -86,7 +86,7 @@ npm install
 npx wrangler deploy
 ```
 
-**Required secrets** — set before deploying:
+**Required secrets** - set before deploying:
 
 ```bash
 npx wrangler secret put KEETA_SEED
@@ -104,12 +104,12 @@ npx wrangler secret put KTA_SOCIAL_URL
 
 | Operation | Latency | Notes |
 |-----------|---------|-------|
-| API read (`/price`, `/rate`, `/whale/alerts`) | <5ms | Served from Cloudflare edge KV — no origin round-trip |
+| API read (`/price`, `/rate`, `/whale/alerts`) | <5ms | Served from Cloudflare edge KV - no origin round-trip |
 | Price freshness | 5 min max | Cron fires every 5 minutes, writes to KV |
 | FX rate conversion | <1ms after first fetch | Rates cached in KV for 1 hour |
-| KTA settlement | **0.4s** | Keeta Network native finality — faster than Solana (~400ms avg), Ethereum (~12s), Bitcoin (~10min) |
+| KTA settlement | **0.4s** | Keeta Network native finality - faster than Solana (~400ms avg), Ethereum (~12s), Bitcoin (~10min) |
 | Tier activation | ~1–2s total | 0.4s on-chain settlement + chain scan + KV write |
-| Whale detection | every hour | Gated to hourly — avoids CPU overrun on the cron |
+| Whale detection | every hour | Gated to hourly - avoids CPU overrun on the cron |
 
 The cron runs all independent operations in parallel: price fetch, history read, and whale detection run concurrently, keeping each 5-minute cycle well within Cloudflare's 30-second CPU limit.
 
@@ -119,31 +119,31 @@ For a REST/JSON price oracle, sub-5ms edge reads from a globally distributed net
 
 ## Mobile
 
-The Oracle landing page (`/`) is fully mobile-responsive — hamburger navigation, fluid layouts, and touch-optimised controls. Tested across viewport widths from 320px.
+The Oracle landing page (`/`) is fully mobile-responsive - hamburger navigation, fluid layouts, and touch-optimised controls. Tested across viewport widths from 320px.
 
 ---
 
 ## Native SDK
 
-All on-chain operations are performed natively through the Keeta Network SDK — no third-party APIs:
+All on-chain operations are performed natively through the Keeta Network SDK - no third-party APIs:
 
 | Operation | Native method |
 |-----------|---------------|
-| Whale detection | `client.history()` + `effects.accounts` — reads chain directly |
-| Tier activation | `scanChainTotal()` — sums KTA sent from subscriber wallet on-chain |
-| FX quotes | `FX.Client.getEstimates()` — Keeta Anchor FX engine |
-| Payment send | `UserClient` native transfer — 0.4s Keeta finality |
-| Price (fallback) | `FX.Client.getEstimates()` KTA→USDC — Keeta liquidity pools |
+| Whale detection | `client.history()` + `effects.accounts` - reads chain directly |
+| Tier activation | `scanChainTotal()` - sums KTA sent from subscriber wallet on-chain |
+| FX quotes | `FX.Client.getEstimates()` - Keeta Anchor FX engine |
+| Payment send | `UserClient` native transfer - 0.4s Keeta finality |
+| Price (fallback) | `FX.Client.getEstimates()` KTA→USDC - Keeta liquidity pools |
 
-The cron fetches live KTA price with a time-boxed 8s timeout and falls back to the last known price from KV — ensuring the cron never hangs regardless of network conditions. The Keeta Anchor SDK is used for on-demand price in HTTP endpoints where cold starts are acceptable.
+The cron fetches live KTA price with a time-boxed 8s timeout and falls back to the last known price from KV - ensuring the cron never hangs regardless of network conditions. The Keeta Anchor SDK is used for on-demand price in HTTP endpoints where cold starts are acceptable.
 
 ---
 
 ## Stack
 
-- Cloudflare Workers — TypeScript, cron trigger (`*/5 * * * *`)
-- **Keeta Network SDK** — `@keetanetwork/keetanet-client`, `@keetanetwork/anchor` (100% native)
-- Cloudflare KV — subscription state and price history ring buffer
+- Cloudflare Workers - TypeScript, cron trigger (`*/5 * * * *`)
+- **Keeta Network SDK** - `@keetanetwork/keetanet-client`, `@keetanetwork/anchor` (100% native)
+- Cloudflare KV - subscription state and price history ring buffer
 
 ---
 
@@ -162,7 +162,7 @@ The cron fetches live KTA price with a time-boxed 8s timeout and falls back to t
 
 ## Payment cost comparison
 
-| | SWIFT wire — $50,000 | Keeta Network — $50,000 |
+| | SWIFT wire - $50,000 | Keeta Network - $50,000 |
 |-|----------------------|------------------------|
 | Fee | ~$1,050 | **$75** |
 | Speed | 3–5 business days | **0.4 seconds** |
@@ -210,7 +210,7 @@ The Oracle classifies every price move and emits a `changeLevel` to Social. Soci
 
 | Price move | Level | Social cooldown override |
 |---|---|---|
-| < 5% | — | No alert emitted |
+| < 5% | - | No alert emitted |
 | 5–9% | `minor` | Respects subscriber frequency |
 | 10–14% | `normal` | 4-hour max cooldown |
 | 15–19% | `notable` | 1-hour max cooldown |
@@ -221,12 +221,12 @@ The Oracle classifies every price move and emits a `changeLevel` to Social. Soci
 
 ## Troubleshoot
 
-**Every feature requires a minimum 0.1 KTA activated wallet.** Registration alone does not start alerts or unlock API access — you must send KTA and trigger activation.
+**Every feature requires a minimum 0.1 KTA activated wallet.** Registration alone does not start alerts or unlock API access - you must send KTA and trigger activation.
 
 | Symptom | Cause | Fix |
 |---------|-------|-----|
 | Wallet shows `unregistered` after sending KTA | Activation not triggered | Call `POST /activate` (via Social's `/activate-oracle`) after sending KTA |
-| No alerts despite being registered | Trial exhausted or wallet not activated | Check `GET /subscription?wallet=` — if `tier: unregistered`, activate first |
+| No alerts despite being registered | Trial exhausted or wallet not activated | Check `GET /subscription?wallet=` - if `tier: unregistered`, activate first |
 | Alerts stopped after some time | Oracle 30-day window expired | Social alerts survive if `socialLifetime: true` (50+ KTA sent). Renew Oracle by sending more KTA |
 | Wrong currency in alerts | FX rate missed a cycle | Re-register with the correct currency. Rates update every cron cycle |
 | `GET /rate` returns stale data | KV cache miss on cold start | The cron writes FX data every 5 minutes. Wait one cron cycle and retry |
@@ -244,7 +244,7 @@ Returns `tier`, `amount`, `socialLifetime`, `expiresAt`, and `activatedAt`.
 
 ## License
 
-[MIT](./LICENSE) — the code is open source. Service access requires a KTA subscription.
+[MIT](./LICENSE) - the code is open source. Service access requires a KTA subscription.
 
 ## Security
 

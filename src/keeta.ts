@@ -8,8 +8,8 @@ const KTA_NATIVE_SMALL    = BigInt("1000000000000000");
 const KTA_NATIVE_DECIMALS = 1e18;
 const STABLECOIN_DECIMALS = 1_000_000;
 
-const WHALE_THRESHOLD_KTA     = 10_000;
-const INSTITUTIONAL_THRESHOLD = 100_000;
+const WHALE_THRESHOLD_KTA     = 100_000;
+const INSTITUTIONAL_THRESHOLD = 500_000;
 const MEGA_WHALE_THRESHOLD    = 1_000_000;
 
 async function accountFromPassphrase(phrase: string, index = 0) {

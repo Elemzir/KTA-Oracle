@@ -11,11 +11,11 @@ This policy covers the `kta-oracle` Cloudflare Worker and all code in this repos
 Do not open a public GitHub issue for security vulnerabilities.
 
 Contact privately:
-- **X:** [@elemzir](https://x.com/elemzir) — mention "KTA-Oracle Security"
+- **X:** [@elemzir](https://x.com/elemzir) - mention "KTA-Oracle Security"
 - **Response time:** within 48 hours
 - **Fix target:** critical within 7 days, high severity within 14 days
 
-Include a clear description, reproduction steps, potential impact, and your preferred follow-up contact. Responsible disclosure is appreciated — allow time to fix before any public disclosure.
+Include a clear description, reproduction steps, potential impact, and your preferred follow-up contact. Responsible disclosure is appreciated - allow time to fix before any public disclosure.
 
 ---
 
@@ -27,7 +27,7 @@ All secrets (`KEETA_SEED`, `INTERNAL_SECRET`) are stored as encrypted Cloudflare
 
 ### Oracle Wallet
 
-The oracle wallet address is public by design — it receives KTA payments from subscribers. The `KEETA_SEED` (passphrase) that controls it is a Cloudflare secret and is never exposed.
+The oracle wallet address is public by design - it receives KTA payments from subscribers. The `KEETA_SEED` (passphrase) that controls it is a Cloudflare secret and is never exposed.
 
 ### Internal Endpoints
 
@@ -51,7 +51,7 @@ No personal data is stored. Wallet addresses are pseudonymous blockchain identif
 
 ### Infrastructure
 
-Deployed on Cloudflare Workers (serverless). The `workers_dev` subdomain is disabled — the worker is only accessible via service binding from KTA Social and scheduled cron triggers.
+Deployed on Cloudflare Workers (serverless). The `workers_dev` subdomain is disabled - the worker is only accessible via service binding from KTA Social and scheduled cron triggers.
 
 ---
 

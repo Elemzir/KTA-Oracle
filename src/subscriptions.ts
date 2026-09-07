@@ -124,11 +124,11 @@ export async function activateWallet(env: Env, wallet: string): Promise<Activate
 
   const tierLabels: Record<SubTier, string> = {
     unregistered: "Unregistered",
-    free:         `Free — ${FREE_CALLS_PER_DAY} calls/day, 5 days`,
-    starter:      `Starter — ${STARTER_CALLS_TOTAL} calls / 30 days`,
-    social:       `Social — ${PAID_CALLS_PER_MONTH} calls/month, 30 days + lifetime social alerts`,
-    pro:          `Pro — ${PRO_CALLS_PER_MONTH} calls/month, 30 days + compliance tools`,
-    business:     "Business — unlimited calls + all 19 tools, 30 days",
+    free:         `Free - ${FREE_CALLS_PER_DAY} calls/day, 5 days`,
+    starter:      `Starter - ${STARTER_CALLS_TOTAL} calls / 30 days`,
+    social:       `Social - ${PAID_CALLS_PER_MONTH} calls/month, 30 days + lifetime social alerts`,
+    pro:          `Pro - ${PRO_CALLS_PER_MONTH} calls/month, 30 days + compliance tools`,
+    business:     "Business - unlimited calls + all 19 tools, 30 days",
   };
 
   return {

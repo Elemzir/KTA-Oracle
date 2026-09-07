@@ -1,6 +1,6 @@
-# KTA Oracle — Troubleshoot
+# KTA Oracle - Troubleshoot
 
-**Every feature requires a minimum 0.1 KTA activated wallet.** Sending KTA alone is not enough — you must trigger activation after sending.
+**Every feature requires a minimum 0.1 KTA activated wallet.** Sending KTA alone is not enough - you must trigger activation after sending.
 
 ---
 
@@ -26,7 +26,7 @@ Returns: `tier`, `amount`, `socialLifetime`, `expiresAt`, `activatedAt`.
 | Symptom | Cause | Fix |
 |---------|-------|-----|
 | Wallet shows `unregistered` after sending KTA | Activation not triggered | Call `POST /activate` (via Social `/activate-oracle`) after sending KTA |
-| No alerts despite being registered | Trial exhausted or wallet not activated | Check `/subscription?wallet=` — if `tier: unregistered`, activate first |
+| No alerts despite being registered | Trial exhausted or wallet not activated | Check `/subscription?wallet=` - if `tier: unregistered`, activate first |
 | Alerts stopped after some time | Oracle 30-day window expired | Social alerts survive if `socialLifetime: true` (50+ KTA sent). Renew Oracle by sending more KTA and re-activating |
 | Wrong currency in alerts | FX rate missed a cycle | Re-register with the correct currency. Rates update every cron cycle (~5 min) |
 | `GET /rate` returns stale data | KV cold start or missed cron | Cron writes FX data every 5 minutes. Wait one cycle and retry |
@@ -65,7 +65,7 @@ Returns: `tier`, `amount`, `socialLifetime`, `expiresAt`, `activatedAt`.
 
 ## Payment cost comparison
 
-| | SWIFT wire — $50,000 | Keeta Network — $50,000 |
+| | SWIFT wire - $50,000 | Keeta Network - $50,000 |
 |-|----------------------|------------------------|
 | Fee | ~$1,050 | **$75** |
 | Speed | 3–5 business days | **0.4 seconds** |
