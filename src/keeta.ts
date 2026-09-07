@@ -9,8 +9,8 @@ const KTA_NATIVE_DECIMALS = 1e18;
 const STABLECOIN_DECIMALS = 1_000_000;
 
 const WHALE_THRESHOLD_KTA     = 100_000;
-const INSTITUTIONAL_THRESHOLD = 500_000;
-const MEGA_WHALE_THRESHOLD    = 1_000_000;
+const INSTITUTIONAL_THRESHOLD = 1_000_000;
+const MEGA_WHALE_THRESHOLD    = 10_000_000;
 
 async function accountFromPassphrase(phrase: string, index = 0) {
   const seed = await (KeetaNetLib.Account as any).seedFromPassphrase(phrase.trim());
@@ -30,6 +30,8 @@ export async function getOracleClient(seed: string): Promise<{ account: any; cli
 }
 
 const KTA_BASE_ADDRESS = "0xc0634090F2Fe6c6d75e61Be2b949464aBB498973";
+const AERODROME_POOL = "0xd9edc75a3a797ec92ca370f19051babebfb2edee";
+const ORACLE_UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) KTA-Oracle/2.0 (https://kta-oracle.top)";
 
 type GeckoPool = {
   id: string;
@@ -50,69 +52,117 @@ export async function fetchMarketData(): Promise<{
   volume24h: number | null;
   liquidityUsd: number | null;
 }> {
-  try {
-    let pool: GeckoPool | null = null;
-    const directRes = await fetch(
-      "https://api.geckoterminal.com/api/v2/networks/base/pools/0xd9edc75a3a797ec92ca370f19051babebfb2edee",
-      { signal: AbortSignal.timeout(6000), headers: { "Accept": "application/json" } },
-    ).catch(() => null);
-    if (directRes?.ok) {
-      const dd = await directRes.json() as { data?: GeckoPool };
-      if (dd.data?.attributes) pool = dd.data;
-    }
-    if (!pool) {
-      const sr = await fetch(
-        "https://api.geckoterminal.com/api/v2/search/pools?query=KTA&network=base&page=1",
-        { signal: AbortSignal.timeout(8000), headers: { "Accept": "application/json" } },
-      ).catch(() => null);
-      if (sr?.ok) {
-        const sd = await sr.json() as { data?: GeckoPool[] };
-        pool = (sd.data ?? [])
-          .filter(p => p.attributes.name?.toUpperCase().includes("KTA") && parseFloat(p.attributes.reserve_in_usd ?? "0") > 100)
-          .sort((a, b) => parseFloat(b.attributes.reserve_in_usd ?? "0") - parseFloat(a.attributes.reserve_in_usd ?? "0"))[0] ?? sd.data?.[0] ?? null;
-      }
-    }
-    if (pool) {
-      const liquidityUsd = parseFloat(pool.attributes.reserve_in_usd ?? "0") || null;
-      const volume24h    = parseFloat(pool.attributes.volume_usd?.h24 ?? "0") || null;
-      const price        = parseFloat(pool.attributes.base_token_price_usd ?? "0") || null;
-      const c1h          = pool.attributes.price_change_percentage?.h1 ?? null;
-      const c24h         = pool.attributes.price_change_percentage?.h24 ?? null;
-      if (price && isFinite(price) && price > 0) {
-        let c7d: number | null = null;
-        try {
-          const poolAddress = pool.id.replace(/^[^_]+_/, "");
-          const or = await fetch(
-            `https://api.geckoterminal.com/api/v2/networks/base/pools/${poolAddress}/ohlcv/day?limit=8&currency=usd`,
-            { signal: AbortSignal.timeout(6000), headers: { "Accept": "application/json" } },
-          );
-          if (or.ok) {
-            const od = await or.json() as { data?: { attributes?: { ohlcv_list?: number[][] } } };
-            const list = od.data?.attributes?.ohlcv_list ?? [];
-            const oldest = list.find(c => c[4] > 0);
-            if (oldest && oldest[4] > 0) c7d = ((price - oldest[4]) / oldest[4]) * 100;
-          }
-        } catch {}
-        return { price, c1h, c24h, c7d, volume24h, liquidityUsd };
-      }
-    }
-  } catch {}
+  let price: number | null = null;
+  let c1h: number | null = null;
+  let c24h: number | null = null;
+  let c7d: number | null = null;
+  let volume24h: number | null = null;
+  let liquidityUsd: number | null = null;
 
   try {
-    const r = await fetch(
-      `https://api.dexscreener.com/latest/dex/tokens/${KTA_BASE_ADDRESS}`,
-      { signal: AbortSignal.timeout(8000), headers: { "Accept": "application/json" } },
-    );
+    const r = await fetch(`https://api.dexscreener.com/latest/dex/pairs/base/${AERODROME_POOL}`, {
+      signal: AbortSignal.timeout(4000),
+      headers: { "User-Agent": ORACLE_UA, "Accept": "application/json" },
+    });
     if (r.ok) {
-      const d = await r.json() as { pairs?: Array<{ priceUsd?: string; liquidity?: { usd?: number }; volume?: { h24?: number }; priceChange?: { h1?: number; h24?: number } }> };
-      const pair = (d.pairs ?? []).filter(p => (p.liquidity?.usd ?? 0) > 100).sort((a, b) => (b.liquidity?.usd ?? 0) - (a.liquidity?.usd ?? 0))[0];
-      const price = parseFloat(pair?.priceUsd ?? "");
-      if (isFinite(price) && price > 0)
-        return { price, c1h: pair?.priceChange?.h1 ?? null, c24h: pair?.priceChange?.h24 ?? null, c7d: null, volume24h: pair?.volume?.h24 ?? null, liquidityUsd: pair?.liquidity?.usd ?? null };
+      const d = await r.json() as {
+        pair?: {
+          priceUsd?: string;
+          priceChange?: { h1?: number; h24?: number };
+          volume?: { h24?: number };
+          liquidity?: { usd?: number };
+        };
+      };
+      const p = parseFloat(d.pair?.priceUsd ?? "");
+      if (isFinite(p) && p > 0) {
+        price = p;
+        c1h = d.pair?.priceChange?.h1 ?? null;
+        c24h = d.pair?.priceChange?.h24 ?? null;
+        volume24h = d.pair?.volume?.h24 ?? null;
+        liquidityUsd = d.pair?.liquidity?.usd ?? null;
+      }
     }
   } catch {}
 
-  return { price: null, c1h: null, c24h: null, c7d: null, volume24h: null, liquidityUsd: null };
+  if (!price) {
+    try {
+      const r = await fetch(
+        `https://api.coingecko.com/api/v3/simple/token_price/base?contract_addresses=${KTA_BASE_ADDRESS}&vs_currencies=usd&include_24hr_vol=true&include_24hr_change=true`,
+        { signal: AbortSignal.timeout(4000), headers: { "User-Agent": ORACLE_UA, "Accept": "application/json" } },
+      );
+      if (r.ok) {
+        const d = await r.json() as Record<string, { usd?: number; usd_24h_vol?: number; usd_24h_change?: number }>;
+        const tokenData = d[KTA_BASE_ADDRESS.toLowerCase()];
+        const p = tokenData?.usd;
+        if (typeof p === "number" && isFinite(p) && p > 0) {
+          price = p;
+          c24h = tokenData?.usd_24h_change ?? null;
+          volume24h = tokenData?.usd_24h_vol ?? null;
+        }
+      }
+    } catch {}
+  }
+
+  if (!price) {
+    try {
+      const directRes = await fetch(
+        `https://api.geckoterminal.com/api/v2/networks/base/pools/${AERODROME_POOL}`,
+        { signal: AbortSignal.timeout(4000), headers: { "User-Agent": ORACLE_UA, "Accept": "application/json" } },
+      );
+      if (directRes.ok) {
+        const dd = await directRes.json() as { data?: GeckoPool };
+        const attrs = dd.data?.attributes;
+        const p = parseFloat(attrs?.base_token_price_usd ?? "");
+        if (isFinite(p) && p > 0) {
+          price = p;
+          c1h = attrs?.price_change_percentage?.h1 ?? null;
+          c24h = attrs?.price_change_percentage?.h24 ?? null;
+          volume24h = parseFloat(attrs?.volume_usd?.h24 ?? "0") || null;
+          liquidityUsd = parseFloat(attrs?.reserve_in_usd ?? "0") || null;
+        }
+      }
+    } catch {}
+  }
+
+  if (!price) {
+    try {
+      const r = await fetch(
+        `https://api.dexscreener.com/latest/dex/tokens/${KTA_BASE_ADDRESS}`,
+        { signal: AbortSignal.timeout(4000), headers: { "User-Agent": ORACLE_UA, "Accept": "application/json" } },
+      );
+      if (r.ok) {
+        const d = await r.json() as { pairs?: Array<{ priceUsd?: string; liquidity?: { usd?: number }; volume?: { h24?: number }; priceChange?: { h1?: number; h24?: number } }> };
+        const pair = (d.pairs ?? []).filter(p => (p.liquidity?.usd ?? 0) > 100).sort((a, b) => (b.liquidity?.usd ?? 0) - (a.liquidity?.usd ?? 0))[0];
+        const p = parseFloat(pair?.priceUsd ?? "");
+        if (isFinite(p) && p > 0) {
+          price = p;
+          c1h = pair?.priceChange?.h1 ?? null;
+          c24h = pair?.priceChange?.h24 ?? null;
+          volume24h = pair?.volume?.h24 ?? null;
+          liquidityUsd = pair?.liquidity?.usd ?? null;
+        }
+      }
+    } catch {}
+  }
+
+  if (price) {
+    try {
+      const or = await fetch(
+        `https://api.geckoterminal.com/api/v2/networks/base/pools/${AERODROME_POOL}/ohlcv/day?limit=8&currency=usd`,
+        { signal: AbortSignal.timeout(3500), headers: { "User-Agent": ORACLE_UA, "Accept": "application/json" } },
+      );
+      if (or.ok) {
+        const od = await or.json() as { data?: { attributes?: { ohlcv_list?: number[][] } } };
+        const list = od.data?.attributes?.ohlcv_list ?? [];
+        const oldest = list[list.length - 1];
+        if (oldest && oldest[4] > 0) {
+          c7d = ((price - oldest[4]) / oldest[4]) * 100;
+        }
+      }
+    } catch {}
+  }
+
+  return { price, c1h, c24h, c7d, volume24h, liquidityUsd };
 }
 
 export async function fetchMarketPrice(): Promise<number | null> {
@@ -121,30 +171,17 @@ export async function fetchMarketPrice(): Promise<number | null> {
 
 export async function fetch7dChange(currentPrice: number): Promise<number | null> {
   try {
-    const sr = await fetch(
-      "https://api.geckoterminal.com/api/v2/search/pools?query=KTA&network=base&page=1",
-      { signal: AbortSignal.timeout(7000), headers: { "Accept": "application/json" } },
-    );
-    if (!sr.ok) return null;
-    const sd = await sr.json() as {
-      data?: Array<{ id: string; attributes: { name?: string; reserve_in_usd?: string } }>
-    };
-    const pool = sd.data?.find(p => p.attributes.name?.toUpperCase().startsWith("KTA")) ?? sd.data?.[0];
-    if (!pool) return null;
-
-    const poolAddress = pool.id.replace(/^[^_]+_/, "");
     const or = await fetch(
-      `https://api.geckoterminal.com/api/v2/networks/base/pools/${poolAddress}/ohlcv/day?limit=8&currency=usd`,
-      { signal: AbortSignal.timeout(7000), headers: { "Accept": "application/json" } },
+      `https://api.geckoterminal.com/api/v2/networks/base/pools/${AERODROME_POOL}/ohlcv/day?limit=8&currency=usd`,
+      { signal: AbortSignal.timeout(4000), headers: { "User-Agent": ORACLE_UA, "Accept": "application/json" } },
     );
     if (!or.ok) return null;
     const od = await or.json() as { data?: { attributes?: { ohlcv_list?: number[][] } } };
-
     const list = od.data?.attributes?.ohlcv_list;
     if (!list || list.length < 2) return null;
-    const price7d = list[0][4];
-    if (!price7d || price7d <= 0) return null;
-    return ((currentPrice - price7d) / price7d) * 100;
+    const oldest = list[list.length - 1];
+    if (!oldest || oldest[4] <= 0) return null;
+    return ((currentPrice - oldest[4]) / oldest[4]) * 100;
   } catch {
     return null;
   }

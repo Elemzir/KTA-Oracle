@@ -2,7 +2,7 @@ import type { Env, PriceEvent, WhaleAlert } from "./types.js";
 import { requireInternalAuth }              from "./auth.js";
 import { renderHome }                       from "./ui.js";
 import {
-  fetchAnchorPrice, fetchMarketPrice, fetchMarketData, getFxQuote,
+  fetchMarketPrice, fetchMarketData, getFxQuote,
   sendPayment, verifyPayment,
   detectRecentWhales, getOracleAddress,
   getWalletHistory, getWalletScore, screenWallet,
@@ -28,16 +28,7 @@ async function getCachedMarketData(env: Env): Promise<{ price: number | null; c1
   if (cached && Date.now() - cached.ts < 300_000) return { ...cached, fresh: false };
 
   const fetched = await fetchMarketData();
-  let price = (fetched.price && isFinite(fetched.price) && fetched.price > 0) ? fetched.price : null;
-
-  if (!price && env.KEETA_SEED) {
-    try {
-      const anchorRes = await fetchAnchorPrice(env.KEETA_SEED);
-      if (anchorRes?.price && isFinite(anchorRes.price) && anchorRes.price > 0) {
-        price = anchorRes.price;
-      }
-    } catch {}
-  }
+  const price = (fetched.price && isFinite(fetched.price) && fetched.price > 0) ? fetched.price : null;
 
   if (price) {
     const data = {

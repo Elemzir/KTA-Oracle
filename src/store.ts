@@ -65,6 +65,13 @@ export function classifyMove(priceChange: number): "minor" | "normal" | "notable
 
 export async function getWhaleAlerts(env: Env, currentPrice = 0.078): Promise<WhaleAlert[]> {
   let alerts = await env.KV.get<WhaleAlert[]>("kta:whale_alerts", "json");
+  if (alerts && alerts.length) {
+    const valid = alerts.filter(a => Number(a.amountKta) >= 100_000);
+    if (valid.length !== alerts.length) {
+      alerts = valid;
+      await storeWhaleAlerts(env, alerts);
+    }
+  }
   if (!alerts || !alerts.length) {
     alerts = await fetchPoolWhaleAlerts(currentPrice);
     if (alerts && alerts.length) {
@@ -75,7 +82,8 @@ export async function getWhaleAlerts(env: Env, currentPrice = 0.078): Promise<Wh
 }
 
 export async function storeWhaleAlerts(env: Env, alerts: WhaleAlert[]): Promise<void> {
-  await env.KV.put("kta:whale_alerts", JSON.stringify(alerts.slice(0, 10)));
+  const filtered = (alerts ?? []).filter(a => Number(a.amountKta) >= 100_000).slice(0, 10);
+  await env.KV.put("kta:whale_alerts", JSON.stringify(filtered));
 }
 
 export async function appendPricePoint(env: Env, ring: {p: number; t: number}[], price: number, ts: number): Promise<void> {
